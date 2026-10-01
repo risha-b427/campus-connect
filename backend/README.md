@@ -36,6 +36,7 @@ src/
   middleware/                   # Shared Express middleware
   app.ts                        # Express app configuration
   server.ts                     # HTTP server entry point
+```
 
 Requests should follow this path:
 
