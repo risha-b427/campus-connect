@@ -15,21 +15,13 @@ From this `mobile` directory, install the project dependencies:
 npm install
 ```
 
-If you are using Expo Go on a physical iPhone, create a free Expo account at [expo.dev/signup](https://expo.dev/signup), then sign in on both your computer and phone with the same account. 
+If you are using Expo Go on a physical iPhone, create a free Expo account at [expo.dev/signup](https://expo.dev/signup) (note: try using email and password instead of using Google to sign in. The login command doesn't suppose OAuth logins), then sign in on BOTH your computer and phone with the same account. 
 
 If you signed up with email and password, use:
 
 ```powershell
 npx expo login
 ```
-
-If your Expo account uses Google or another browser-based sign-in provider, use:
-
-```powershell
-npx eas-cli@latest login
-```
-
-This opens a browser so you can use the same OAuth provider. 
 
 Then verify the CLI session with `npx expo whoami`.
 
