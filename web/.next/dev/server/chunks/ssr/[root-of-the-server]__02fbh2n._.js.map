@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 13, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/monik/OneDrive/Desktop/CampusConnect/campus-connect/web/app/favicon.ico.mjs%20(structured%20image%20object)"],"sourcesContent":["import src from \"IMAGE\";\nexport default { src, width: 256, height: 256 }\n"],"names":["src","width","height"],"mappings":";;;;AAAA;;uCACe;IAAEA,KAAAA,mIAAG;IAAEC,OAAO;IAAKC,QAAQ;AAAI"}},
-    {"offset": {"line": 28, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/monik/OneDrive/Desktop/CampusConnect/campus-connect/web/app/page.tsx"],"sourcesContent":["export default function Home() {\n  return (\n    <main className=\"mx-auto max-w-4xl px-6 py-16\">\n      <h1 className=\"text-4xl font-bold\">Campus Connect</h1>\n      <p className=\"mt-4 text-lg text-gray-500\">\n        Find study spots at UIUC and see who's studying there.\n      </p>\n    </main>\n  );\n}"],"names":["Home","className"],"mappings":";;;;;;AAAe,SAASA;IACtB,qBACE,8OAAC;QAAKC,WAAU;;0BACd,8OAAC;gBAAGA,WAAU;0BAAqB;;;;;;0BACnC,8OAAC;gBAAEA,WAAU;0BAA6B;;;;;;;;;;;;AAKhD"}}]
-}

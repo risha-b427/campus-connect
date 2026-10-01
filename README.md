@@ -1,36 +1,27 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Campus Connect
 
-## Getting Started
+Campus Connect is a mobile app and API built with Expo, React Native, TypeScript, Expo Router, Node.js, and Express.
 
-First, run the development server:
+## Tech stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+| Area | Technology |
+| --- | --- |
+| Mobile framework | Expo SDK 57, React Native |
+| Backend API | Node.js, Express |
+| Language | TypeScript |
+| Navigation | Expo Router |
+
+## Repository layout
+
+```text
+backend/    Express API
+mobile/     Expo mobile application
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Mobile app guide
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+See [mobile/README.md](mobile/README.md) for complete onboarding, development commands, quality checks, and frontend structure conventions.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Backend API guide
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [backend/README.md](backend/README.md) for complete onboarding, development commands, quality checks, and backend structure conventions.
