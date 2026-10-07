@@ -76,6 +76,8 @@ src/
     profile/
   shared/                 # Code intentionally used by multiple features
     components/
+    data/
+    utils/
 ```
 
 ### Placement rules

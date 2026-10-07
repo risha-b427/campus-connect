@@ -1,0 +1,6 @@
+{
+  "/feed/page": "app/feed/page.js",
+  "/page": "app/page.js",
+  "/profile/page": "app/profile/page.js",
+  "/spots/page": "app/spots/page.js"
+}
