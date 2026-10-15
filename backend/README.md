@@ -55,7 +55,7 @@ src/
       <feature>.service.ts      # Business rules
       <feature>.repository.ts   # Feature-specific database access, when needed
   middleware/                   # Shared Express middleware
-  services/                     # Shared integrations, including the PostgreSQL pool
+  services/                     # Shared integrations, including the PostgreSQL pool/db
   app.ts                        # Express app configuration
   server.ts                     # HTTP server entry point
 ```
