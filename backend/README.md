@@ -18,6 +18,8 @@ DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
 
 Keep `.env` on your computer; never commit it or put the database URL in the mobile app. To connect to a hosted Supabase project instead, use the Postgres connection string from the supabase website project's **Connect** panel.
 
+For authentication, set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` in `backend/.env`. Run `npx supabase status` from the repository root to find the local API URL and publishable key. For a hosted project, use its project URL and publishable key instead.
+
 ## Database changes
 
 Database schema changes go in SQL migration files under `supabase/migrations/`. From the repository root, create a migration with:
@@ -48,6 +50,10 @@ Or, from the repository root, run `npm run backend:dev`. The health endpoint is 
 Run the TypeScript check from this directory with `npm run typecheck`, or from the root with `npm run backend:typecheck`.
 
 ## Database access and security
+
+API requests must send the access token returned by Supabase signup or login in an `Authorization: Bearer <access_token>` header. The `requireAuth` middleware verifies the JWT with Supabase's `auth.getClaims()` and puts the user ID in `req.user.id`. It also checks the token's project issuer, audience, role, and expiry. The health endpoint stays public; mount new `/api` routes after `app.use("/api", requireAuth)` in `src/app.ts` to protect them.
+
+In protected controllers, use `req.user!.id` for the caller's identity, rather than trusting a user ID supplied in the request body. Each route still needs to check which records that user may access. JWT verification alone does not immediately detect signout or user deletion; a verified token can remain valid until it expires.
 
 The API connects to Postgres using `DATABASE_URL`. In this project, that connection uses the `postgres` role, which bypasses Row Level Security (RLS). The API must check that a signed-in user is allowed to perform each operation. Keep database credentials on the backend and never expose them in the mobile app.
 
