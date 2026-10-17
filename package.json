@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "db:start": "supabase start",
+    "db:up": "supabase migration up --local",
+    "db:reset": "supabase db reset",
+    "backend:dev": "npm --prefix backend run dev",
+    "backend:typecheck": "npm --prefix backend run typecheck",
+    "mobile": "npm --prefix mobile run start"
+  },
+  "devDependencies": {
+    "supabase": "^2.120.0"
+  }
+}
