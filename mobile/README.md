@@ -60,6 +60,10 @@ npx expo install expo-camera
 
 Use `npm install <package>` for ordinary JavaScript-only dependencies.
 
+## Database access
+
+Database connections belong in the Express backend, which connects to Supabase Postgres using `backend/.env`. When adding database-backed mobile features, call the backend API rather than connecting the mobile app directly to Postgres. Never put `DATABASE_URL` or a privileged Supabase key in the mobile app.
+
 ## Frontend structure
 
 The app uses a hybrid Expo Router and feature-based structure:

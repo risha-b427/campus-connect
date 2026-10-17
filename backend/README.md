@@ -1,47 +1,65 @@
 # Campus Connect API
 
-Express and TypeScript API for Campus Connect.
+The backend is an Express API that reads and writes data in Supabase Postgres.
 
-## Set Up Environment Variables
+## First-time setup
 
-Make a `.env` file under `backend/`, copy the contents of `.env.example` into it, and configure the placeholder values to the actual values.
+You need Docker Desktop running. From the repository root, start the local Supabase services:
 
-NEVER COMMIT THE `.env` FILE
+```powershell
+npm run db:start
+```
 
-## Run locally
+Create `backend/.env` by copying `backend/.env.example`. The example is already configured for the local database. Its default connection string is:
+
+```dotenv
+DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
+```
+
+Keep `.env` on your computer; never commit it or put the database URL in the mobile app. To connect to a hosted Supabase project instead, use the Postgres connection string from the supabase website project's **Connect** panel.
+
+## Database changes
+
+Database schema changes go in SQL migration files under `supabase/migrations/`. From the repository root, create a migration with:
+
+```powershell
+npx supabase migration new <description>
+```
+
+Edit the generated SQL file, then apply pending migrations locally with:
+
+```powershell
+npm run db:up
+```
+
+To rebuild the local database from all migrations, run `npm run db:reset`. This clears local database data.
+
+## Run the API
+
+From this `backend` directory:
 
 ```powershell
 npm install
 npm run dev
 ```
 
-The health endpoint is available at `http://localhost:3000/api/health`.
+Or, from the repository root, run `npm run backend:dev`. The health endpoint is available at `http://localhost:3000/api/health`.
 
-Run a TypeScript check before opening a pull request:
+Run the TypeScript check from this directory with `npm run typecheck`, or from the root with `npm run backend:typecheck`.
 
-```powershell
-npm run typecheck
-```
+## Database access and security
 
-## Structure
+The API connects to Postgres using `DATABASE_URL`. In this project, that connection uses the `postgres` role, which bypasses Row Level Security (RLS). The API must check that a signed-in user is allowed to perform each operation. Keep database credentials on the backend and never expose them in the mobile app.
+
+## Code layout
 
 ```text
 src/
-  features/
-    <feature>/
-      <feature>.routes.ts       # HTTP endpoints
-      <feature>.controller.ts   # Request and response handling
-      <feature>.service.ts      # Business rules
-      <feature>.repository.ts   # Feature-specific database access, when needed
-  middleware/                   # Shared Express middleware
-  app.ts                        # Express app configuration
-  server.ts                     # HTTP server entry point
+  features/       # API routes and feature-specific logic
+  middleware/     # Shared request middleware
+  services/       # Shared services, including the database connection
+  app.ts          # Express app configuration
+  server.ts       # Starts the HTTP server
 ```
 
-Requests should follow this path:
-
-```text
-route -> controller -> service -> repository -> database
-```
-
-Routes are mounted directly in `src/app.ts`.
+Feature code can be split into routes, controllers, services, and repositories as needed. Routes are mounted in `src/app.ts`.
