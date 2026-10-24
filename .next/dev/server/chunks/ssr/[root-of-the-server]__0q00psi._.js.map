@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 13, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/hyrtw/Desktop/reactStuff/campus-connect/app/favicon.ico.mjs%20(structured%20image%20object)"],"sourcesContent":["import src from \"IMAGE\";\nexport default { src, width: 256, height: 256 }\n"],"names":["src","width","height"],"mappings":";;;;AAAA;;uCACe;IAAEA,KAAAA,mIAAG;IAAEC,OAAO;IAAKC,QAAQ;AAAI"}},
-    {"offset": {"line": 28, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/hyrtw/Desktop/reactStuff/campus-connect/app/feed/page.tsx"],"sourcesContent":["export default function FeedPage() {\n  return (\n    <main className=\"mx-auto max-w-4xl px-6 py-16\">\n      <h1 className=\"text-3xl font-bold\">Feed</h1>\n      <p className=\"mt-2 text-gray-500\">Coming soon!</p>\n    </main>\n  );\n}"],"names":["FeedPage","className"],"mappings":";;;;;;AAAe,SAASA;IACtB,qBACE,8OAAC;QAAKC,WAAU;;0BACd,8OAAC;gBAAGA,WAAU;0BAAqB;;;;;;0BACnC,8OAAC;gBAAEA,WAAU;0BAAqB;;;;;;;;;;;;AAGxC"}}]
-}
