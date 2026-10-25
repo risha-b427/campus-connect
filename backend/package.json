@@ -6,7 +6,8 @@
   "scripts": {
     "start": "tsx src/server.ts",
     "dev": "tsx watch src/server.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "keywords": [],
   "author": "",
@@ -20,8 +21,14 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
     "@types/node": "^26.6.3",
     "@types/pg": "^8.23.1",
+    "@types/supertest": "^6.0.3",
+    "@swc/core": "^1.15.8",
+    "@swc/jest": "^0.2.39",
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }
