@@ -9,9 +9,10 @@ const AVATAR_SIZE = 56;
 
 type CheckInCardProps = {
   checkIn: CheckIn;
+  spotName?: string;
 };
 
-export function CheckInCard({ checkIn }: CheckInCardProps) {
+export function CheckInCard({ checkIn, spotName }: CheckInCardProps) {
   // At least as tall as it is wide (a square), but allowed to grow taller when
   // the card is narrow and the text wraps onto more lines.
   const [width, setWidth] = useState(0);
@@ -22,13 +23,13 @@ export function CheckInCard({ checkIn }: CheckInCardProps) {
       onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
     >
       <View style={styles.avatarArea}>
-        <Avatar name={checkIn.name} size={AVATAR_SIZE} />
+        <Avatar name={checkIn.userName} size={AVATAR_SIZE} />
       </View>
       <Text style={styles.message}>
-        <Text style={styles.bold}>{checkIn.name}</Text> is studying at{" "}
-        <Text style={styles.bold}>{checkIn.spot}</Text>
+        <Text style={styles.bold}>{checkIn.userName}</Text> is studying at{" "}
+        <Text style={styles.bold}>{spotName ?? checkIn.spotId}</Text>
       </Text>
-      <Text style={styles.time}>{timeAgo(checkIn.timestamp)}</Text>
+      <Text style={styles.time}>{timeAgo(new Date(checkIn.startedAt))}</Text>
     </View>
   );
 }

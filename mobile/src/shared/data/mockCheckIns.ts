@@ -1,4 +1,5 @@
 import { CheckIn } from '../types';
+export type { CheckIn };
 
 // makes timestamps relative to now, so "10 min ago" always looks right
 const ago = (min: number) => new Date(Date.now() - min * 60_000).toISOString();
@@ -15,3 +16,9 @@ export const mockCheckIns: CheckIn[] = [
   { id: 'c7', userId: 'u1', userName: 'Jordan', spotId: 'spot-1', startedAt: ago(2900), endedAt: ago(2780) },
   { id: 'c8', userId: 'u5', userName: 'Maya',   spotId: 'spot-4', note: 'ECON 102', startedAt: ago(180), endedAt: ago(90), rating: { busyness: 2, noise: 1 } },
 ];
+
+export function getSortedCheckIns(): CheckIn[] {
+  return [...mockCheckIns].sort(
+    (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime(),
+  );
+}
