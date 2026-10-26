@@ -1,34 +1,17 @@
-export type CheckIn = {
-  id: string;
-  name: string;
-  spot: string;
-  timestamp: Date;
-};
+import { CheckIn } from '../types';
 
-const MINUTE = 60 * 1000;
-const HOUR = 60 * MINUTE;
+// makes timestamps relative to now, so "10 min ago" always looks right
+const ago = (min: number) => new Date(Date.now() - min * 60_000).toISOString();
 
-function ago(ms: number) {
-  return new Date(Date.now() - ms);
-}
-
-// Fake check-ins until the backend exists. Intentionally out of order so the
-// sort in getSortedCheckIns is what puts the newest first.
-const mockCheckIns: CheckIn[] = [
-  { id: "1", name: "Alex", spot: "Grainger", timestamp: ago(10 * MINUTE) },
-  { id: "2", name: "Jordan", spot: "Main Library", timestamp: ago(2 * HOUR) },
-  { id: "3", name: "Priya", spot: "Illini Union", timestamp: ago(30 * 1000) },
-  { id: "4", name: "Sam", spot: "Siebel Center", timestamp: ago(45 * MINUTE) },
-  { id: "5", name: "Maya", spot: "Undergrad Library", timestamp: ago(26 * HOUR) },
-  { id: "6", name: "Chris", spot: "Grainger", timestamp: ago(5 * HOUR) },
-  { id: "7", name: "Taylor", spot: "ACES Library", timestamp: ago(3 * MINUTE) },
-  { id: "8", name: "Devin", spot: "Main Library", timestamp: ago(3 * 24 * HOUR) },
-  { id: "9", name: "Riley", spot: "Siebel Center", timestamp: ago(1 * HOUR) },
-  { id: "10", name: "Jamie", spot: "Illini Union", timestamp: ago(20 * HOUR) },
+export const mockCheckIns: CheckIn[] = [
+  // still here (no endedAt)
+  { id: 'c1', userId: 'u1', userName: 'Jordan', spotId: 'spot-1', note: 'CS 225 MP', startedAt: ago(15) },
+  { id: 'c2', userId: 'u2', userName: 'Alex',   spotId: 'spot-1', startedAt: ago(40) },
+  { id: 'c3', userId: 'u3', userName: 'Priya',  spotId: 'spot-1', note: 'MATH 241', startedAt: ago(5) },
+  { id: 'c4', userId: 'u4', userName: 'Sam',    spotId: 'spot-2', startedAt: ago(25) },
+  // already left
+  { id: 'c5', userId: 'u1', userName: 'Jordan', spotId: 'spot-2', startedAt: ago(1500), endedAt: ago(1410), rating: { busyness: 3, noise: 2 } },
+  { id: 'c6', userId: 'u2', userName: 'Alex',   spotId: 'spot-3', startedAt: ago(300),  endedAt: ago(200),  rating: { busyness: 4, noise: 4 } },
+  { id: 'c7', userId: 'u1', userName: 'Jordan', spotId: 'spot-1', startedAt: ago(2900), endedAt: ago(2780) },
+  { id: 'c8', userId: 'u5', userName: 'Maya',   spotId: 'spot-4', note: 'ECON 102', startedAt: ago(180), endedAt: ago(90), rating: { busyness: 2, noise: 1 } },
 ];
-
-export function getSortedCheckIns(): CheckIn[] {
-  return [...mockCheckIns].sort(
-    (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
-  );
-}

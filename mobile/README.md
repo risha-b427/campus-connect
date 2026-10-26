@@ -1,60 +1,66 @@
 # Campus Connect mobile app
 
-The Campus Connect mobile app frontend is built with Expo, React Native, TypeScript, and Expo Router.
+The mobile app is built with Expo, React Native, TypeScript, and Expo Router.
 
 ## Prerequisites
 
-- Node.js 22.13 or newer
-- The Expo Go app on an Android device or iPhone, if you plan to test on a physical phone. (Expo Go allows you to run the app locally on your mobile device, but you don't need it if you are testing on web or emulator)
+- [Node.js 22.13 or newer](https://nodejs.org/)
+- The latest [Expo Go](https://expo.dev/go) app on an Android phone or iPhone, or Android Studio for an emulator
+
+This project uses Expo SDK 58. Expo Go and the project must use the same SDK major version.
 
 ## First-time setup
 
-From this `mobile` directory, install the project dependencies:
+From this `mobile` directory:
 
-```powershell
+```bash
 npm install
 ```
 
-If you are using Expo Go on a physical iPhone, create a free Expo account at [expo.dev/signup](https://expo.dev/signup) (note: try using email and password instead of using Google to sign in. The login command doesn't suppose OAuth logins), then sign in on BOTH your computer and phone with the same account. 
+If you are using Expo Go on an iPhone, create a free account at [expo.dev/signup](https://expo.dev/signup) and sign in on both your computer and phone:
 
-If you signed up with email and password, use:
-
-```powershell
+```bash
 npx expo login
+npx expo whoami
 ```
 
-Then verify the CLI session with `npx expo whoami`.
-
-On Android, an Expo login is currently optional for local Expo Go development.
+An Expo login is optional for local Android development.
 
 ## Run the app
 
-```powershell
+```bash
 npm start
 ```
 
-This starts Expo's development server and shows a QR code.
+or from the root
 
-- Android: open Expo Go and use **Scan QR code**.
+```bash
+npm run mobile
+```
+
+Expo starts a development server and shows a QR code:
+
+- Android phone: open Expo Go and scan the QR code.
 - iPhone: scan the QR code with the Camera app, then open it in Expo Go.
-- Android emulator: press `a` in the Expo terminal (note you need to download an Android Emulator via Android Studios).
+- Android emulator: press `a` in the Expo terminal.
 - Web: press `w` in the Expo terminal.
 
-Your phone and computer need to be on the same Wi-Fi network. If a phone cannot connect, stop Expo with `Ctrl+C` and run:
+Your phone and computer should be on the same Wi-Fi network. If the phone cannot connect, stop Expo with `Ctrl+C` and use:
 
-```powershell
+```bash
 npx expo start --tunnel
 ```
 
-Tunnel mode is slower, so prefer the normal LAN connection when possible.
+Tunnel mode is slower, so use the normal LAN connection when possible.
 
 ## Everyday workflow
 
-Run `npm start` for normal development. Run `npm install` again after pulling changes that modify `package.json` or `package-lock.json`.
+Run `npm start` for normal development. Run `npm install` after pulling changes to `package.json` or `package-lock.json`.
 
-Use Expo's installer for Expo packages so it selects a version compatible with this SDK:
+Use Expo's installer for Expo packages:
 
-```powershell
+e.g.
+```bash
 npx expo install expo-camera
 ```
 
@@ -62,11 +68,9 @@ Use `npm install <package>` for ordinary JavaScript-only dependencies.
 
 ## Database access
 
-Database connections belong in the Express backend, which connects to Supabase Postgres using `backend/.env`. When adding database-backed mobile features, call the backend API rather than connecting the mobile app directly to Postgres. Never put `DATABASE_URL` or a privileged Supabase key in the mobile app.
+The mobile app must call the Express backend for database-backed features. Never put `DATABASE_URL` or a privileged Supabase key in the mobile app.
 
 ## Frontend structure
-
-The app uses a hybrid Expo Router and feature-based structure:
 
 ```text
 src/
@@ -84,9 +88,4 @@ src/
     utils/
 ```
 
-### Placement rules
-
-- Keep `src/app/` files thin: they define navigation or export a feature screen.
-- Put code used by one feature inside `src/features/<feature>/`.
-- Put code used by multiple features inside `src/shared/`.
-- Put shared integration setup in `src/services/` (for example,  `supabase.ts`). Keep feature-specific API calls inside their feature.
+Keep route files in `src/app/` thin. Put feature-specific code in `src/features/<feature>/` and reusable code in `src/shared/`.
