@@ -74,9 +74,18 @@ The mobile app must call the Express backend for database-backed features. Never
 
 ```text
 src/
-  app/                    # Expo Router routes and layouts
-  features/               # Feature-owned screens, components, hooks, and types
-  shared/                 # Code used by multiple features
+  app/                    # Expo Router routes and navigator layouts only
+    (tabs)/               # Bottom-tab route group
+  features/               # Feature-owned screens, components, hooks, API calls, and types
+    auth/
+    home/
+    study-spots/
+    feed/
+    profile/
+  shared/                 # Code intentionally used by multiple features
+    components/
+    data/
+    utils/
 ```
 
 Keep route files in `src/app/` thin. Put feature-specific code in `src/features/<feature>/` and reusable code in `src/shared/`.
