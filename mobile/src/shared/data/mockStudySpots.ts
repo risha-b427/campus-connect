@@ -24,7 +24,7 @@ export const FAKE_USER_LOCATION: Coordinates = {
 // Hours and coordinates are not verified.
 export const mockStudySpots: StudySpot[] = [
   {
-    id: "spot-1",
+    id: "main-library",
     name: "Main Library",
     area: "Quiet Reading Room",
     location: { latitude: 40.1048, longitude: -88.229 },
@@ -33,7 +33,7 @@ export const mockStudySpots: StudySpot[] = [
     hours: "8 AM – 10 PM",
   },
   {
-    id: "spot-2",
+    id: "grainger",
     name: "Grainger",
     area: "Engineering Study Tables",
     location: { latitude: 40.1125, longitude: -88.2269 },
@@ -42,7 +42,7 @@ export const mockStudySpots: StudySpot[] = [
     hours: "8 AM – 11 PM",
   },
   {
-    id: "spot-3",
+    id: "illini-union",
     name: "Illini Union",
     area: "Student Lounge",
     location: { latitude: 40.1093, longitude: -88.2272 },
@@ -51,7 +51,7 @@ export const mockStudySpots: StudySpot[] = [
     hours: "7 AM – 11 PM",
   },
   {
-    id: "spot-4",
+    id: "siebel-center",
     name: "Siebel Center",
     area: "Group Study Area",
     location: { latitude: 40.1138, longitude: -88.2249 },
@@ -60,7 +60,7 @@ export const mockStudySpots: StudySpot[] = [
     hours: "9 AM – 9 PM",
   },
   {
-    id: "spot-5",
+    id: "campus-cafe",
     name: "Sample Campus Café",
     area: "Coffee Shop Tables",
     location: { latitude: 40.11, longitude: -88.23 },
@@ -69,7 +69,7 @@ export const mockStudySpots: StudySpot[] = [
     hours: "7 AM – 6 PM",
   },
   {
-    id: "spot-6",
+    id: "coworking-center",
     name: "Sample Coworking Center",
     area: "Reserved Study Room",
     location: { latitude: 40.112, longitude: -88.231 },
