@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { studySpots } from "@/features/study-spots/data/studySpots";
+import { mockStudySpots } from "@/shared/data/mockStudySpots";
 import { mockCheckIns } from "@/shared/data/mockCheckIns";
 import type { CheckIn } from "@/shared/types";
 
@@ -65,7 +65,7 @@ const MONTHS = [
 ];
 
 function getSpot(spotId: string) {
-  return studySpots.find((spot) => spot.id === spotId);
+  return mockStudySpots.find((spot) => spot.id === spotId);
 }
 
 function getSpotName(spotId: string): string {
@@ -193,11 +193,11 @@ function TopSpotRow({ rank, stats }: TopSpotRowProps) {
       </View>
       <View style={styles.rowText}>
         <Text style={styles.rowTitle} numberOfLines={1}>
-          {spot?.name ?? "Unknown spot"}
+          {spot?.area ?? spot?.name ?? "Unknown spot"}
         </Text>
-        {spot ? (
+        {spot?.area ? (
           <Text style={styles.rowSubtitle} numberOfLines={1}>
-            {spot.building}
+            {spot.name}
           </Text>
         ) : null}
       </View>

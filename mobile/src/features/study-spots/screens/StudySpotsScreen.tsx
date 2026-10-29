@@ -1,13 +1,13 @@
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import StudySpotCard from "../components/StudySpotCard";
-import { studySpots } from "../data/studySpots";
+import { mockStudySpots } from "@/shared/data/mockStudySpots";
 
 export function StudySpotsScreen() {
   return (
     <View style={styles.screen}>
       <FlatList
-        data={studySpots}
+        data={mockStudySpots}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <StudySpotCard spot={item} />
@@ -20,7 +20,7 @@ export function StudySpotsScreen() {
             </Text>
 
             <Text style={styles.subtitle}>
-              Explore six places to study around campus.
+              Explore {mockStudySpots.length} places to study around campus.
             </Text>
           </View>
         }

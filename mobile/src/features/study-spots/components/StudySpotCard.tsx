@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import type { StudySpot } from "../data/studySpots";
+import type { StudySpot } from "@/shared/data/mockStudySpots";
 
 type StudySpotCardProps = {
   spot: StudySpot;
@@ -11,7 +11,7 @@ export default function StudySpotCard({
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.name}>{spot.name}</Text>
+        <Text style={styles.name}>{spot.area ?? spot.name}</Text>
 
         <View
           style={[
@@ -25,7 +25,7 @@ export default function StudySpotCard({
         </View>
       </View>
 
-      <Text style={styles.building}>{spot.building}</Text>
+      {spot.area ? <Text style={styles.building}>{spot.name}</Text> : null}
       <Text style={styles.hours}>Hours: {spot.hours}</Text>
     </View>
   );

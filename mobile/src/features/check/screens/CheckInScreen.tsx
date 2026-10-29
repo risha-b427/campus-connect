@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
-import { studySpots } from "@/features/study-spots/data/studySpots";
+import { mockStudySpots } from "@/shared/data/mockStudySpots";
 
 export default function CheckInScreen() {
   const [selectedSpotId, setSelectedSpotId] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [checkedInSpotId, setCheckedInSpotId] = useState<string | null>(null);
 
-  const checkedInSpot = studySpots.find((s) => s.id === checkedInSpotId);
+  const checkedInSpot = mockStudySpots.find((s) => s.id === checkedInSpotId);
 
   function handleCheckIn() {
     if (selectedSpotId) {
@@ -26,7 +26,7 @@ export default function CheckInScreen() {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>
-          You're checked in at {checkedInSpot.building}!
+          You're checked in at {checkedInSpot.name}!
         </Text>
         {note !== "" && <Text style={styles.note}>Working on: {note}</Text>}
         <Pressable style={styles.button} onPress={handleCheckOut}>
@@ -41,14 +41,14 @@ export default function CheckInScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Pick a study spot</Text>
 
-      {studySpots.map((spot) => (
+      {mockStudySpots.map((spot) => (
         <Pressable
           key={spot.id}
           style={[styles.spot, selectedSpotId === spot.id && styles.spotSelected]}
           onPress={() => setSelectedSpotId(spot.id)}
         >
           <Text>
-            {spot.name} ({spot.building})
+            {spot.area ? `${spot.area} (${spot.name})` : spot.name}
           </Text>
         </Pressable>
       ))}

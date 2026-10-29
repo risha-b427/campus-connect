@@ -3,7 +3,7 @@ import { StyleSheet, View } from "react-native";
 import { SectionTitle } from "@/features/home/components/SectionTitle";
 import { CheckInCard } from "@/shared/components/CheckInCard";
 import type { CheckIn } from "@/shared/data/mockCheckIns";
- import { studySpots } from "@/features/study-spots/data/studySpots";
+import { mockStudySpots } from "@/shared/data/mockStudySpots";
 
 type FriendsCheckInsProps = {
   checkIns: CheckIn[];
@@ -26,7 +26,7 @@ export function FriendsCheckIns({ checkIns }: FriendsCheckInsProps) {
               <CheckInCard
                 key={checkIn.id}
                 checkIn={checkIn}
-                spotName={studySpots.find((s) => s.id === checkIn.spotId)?.name}
+                spotName={mockStudySpots.find((s) => s.id === checkIn.spotId)?.name}
               />
             ))}
             {/* Keeps a lone last card at half width instead of stretching. */}
