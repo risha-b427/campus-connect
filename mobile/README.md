@@ -72,7 +72,7 @@ The mobile app must call the Express backend for database-backed features. Never
 
 ## Authentication
 
-Users sign up and log in with an email and password through Supabase Auth. The app talks to Supabase Auth directly for this, using the public anon key. Everything else that reads or writes the database still goes through the Express backend (see Database access below).
+Users sign up and log in with an email and password through Supabase Auth. The app talks to Supabase Auth directly for this, using Supabase's public publishable key (it starts with `sb_publishable_`). Everything else that reads or writes the database still goes through the Express backend (see Database access below).
 
 ### Set up your environment file
 
@@ -92,7 +92,7 @@ Users sign up and log in with an email and password through Supabase Auth. The a
    npx supabase status -o env
    ```
 
-   Put the `API_URL` value in `EXPO_PUBLIC_SUPABASE_URL` and the `ANON_KEY` value in `EXPO_PUBLIC_SUPABASE_ANON_KEY`.
+   Put the `API_URL` value in `EXPO_PUBLIC_SUPABASE_URL` and the `PUBLISHABLE_KEY` value in `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
 
 3. A phone cannot reach `127.0.0.1`, because that means "this device". Replace it with your computer's address on the Wi-Fi network, for example `http://192.168.1.20:54321`. On macOS, `ipconfig getifaddr en0` prints it. The address changes when you switch networks. An emulator, simulator, or the web build can use `127.0.0.1`.
 

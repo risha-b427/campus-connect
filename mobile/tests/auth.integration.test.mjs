@@ -20,12 +20,12 @@ const PASSWORD = "test-pass-1";
 function loadConfig() {
   const values = {
     API_URL: process.env.SUPABASE_URL,
-    ANON_KEY: process.env.SUPABASE_ANON_KEY,
+    PUBLISHABLE_KEY: process.env.SUPABASE_PUBLISHABLE_KEY,
     SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     MAILPIT_URL: process.env.MAILPIT_URL,
   };
 
-  if (!values.API_URL || !values.ANON_KEY || !values.SERVICE_ROLE_KEY) {
+  if (!values.API_URL || !values.PUBLISHABLE_KEY || !values.SERVICE_ROLE_KEY) {
     try {
       const output = execFileSync("npx", ["supabase", "status", "-o", "env"], {
         cwd: repoRoot,
@@ -44,7 +44,7 @@ function loadConfig() {
 
   return {
     url: values.API_URL,
-    anonKey: values.ANON_KEY,
+    publishableKey: values.PUBLISHABLE_KEY,
     serviceKey: values.SERVICE_ROLE_KEY,
     mailUrl: values.MAILPIT_URL ?? "http://127.0.0.1:54324",
   };
@@ -53,7 +53,7 @@ function loadConfig() {
 async function isReachable(config) {
   try {
     const res = await fetch(`${config.url}/auth/v1/health`, {
-      headers: { apikey: config.anonKey },
+      headers: { apikey: config.publishableKey },
       signal: AbortSignal.timeout(3000),
     });
     return res.ok;
@@ -75,7 +75,7 @@ describe("Supabase Auth", { skip }, () => {
   // A client whose saved login lives in `storage`, like the phone's AsyncStorage.
   const newApp = (storage = memoryStorage()) => ({
     storage,
-    client: createClient(config.url, config.anonKey, {
+    client: createClient(config.url, config.publishableKey, {
       auth: {
         storage,
         persistSession: true,
