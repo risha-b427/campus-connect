@@ -20,7 +20,11 @@ function RootNavigator() {
       <Stack.Protected guard={!session}>
         <Stack.Screen name="index" />
         <Stack.Screen name="sign-up" />
+        <Stack.Screen name="forgot-password" />
       </Stack.Protected>
+
+      {/* The reset link logs you in briefly, so this screen is open to everyone. */}
+      <Stack.Screen name="reset-password" />
 
       {/* Only logged-in people can see the app. */}
       <Stack.Protected guard={!!session}>
