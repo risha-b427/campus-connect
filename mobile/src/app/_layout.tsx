@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 
 import { AuthProvider, useAuth } from "@/features/auth/AuthProvider";
+import { CheckInProvider } from "@/features/check/context/CheckInContext";
 
 function RootNavigator() {
   const { session, loading } = useAuth();
@@ -45,7 +46,9 @@ function RootNavigator() {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <RootNavigator />
+      <CheckInProvider>
+        <RootNavigator />
+      </CheckInProvider>
     </AuthProvider>
   );
 }
