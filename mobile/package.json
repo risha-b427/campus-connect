@@ -41,7 +41,10 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "test": "node --no-warnings --experimental-strip-types --test \"tests/*.test.mjs\"",
+    "test:unit": "node --no-warnings --experimental-strip-types --test tests/resetLink.test.mjs",
+    "test:auth": "node --no-warnings --experimental-strip-types --test tests/auth.integration.test.mjs"
   },
   "private": true
 }

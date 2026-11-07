@@ -14,26 +14,8 @@ import { PasswordInput } from "@/features/auth/components/PasswordInput";
 import { AuthButton } from "@/features/auth/components/AuthButton";
 import { Entrance } from "@/features/auth/components/Entrance";
 import { authStyles as styles } from "@/features/auth/authStyles";
+import { readResetLink } from "@/features/auth/resetLink";
 import { supabase } from "@/shared/lib/supabase";
-
-// Supabase puts the login tokens after the # in the link from the email.
-function readResetLink(url: string | null) {
-  if (!url) return null;
-  const params = new URLSearchParams(url.split("#")[1] ?? "");
-  const accessToken = params.get("access_token");
-  const refreshToken = params.get("refresh_token");
-
-  if (accessToken && refreshToken) {
-    return { accessToken, refreshToken, problem: null };
-  }
-  return {
-    accessToken: null,
-    refreshToken: null,
-    problem:
-      params.get("error_description")?.replace(/\+/g, " ") ??
-      "This reset link is not valid. Please request a new one.",
-  };
-}
 
 export function ResetPasswordScreen() {
   // The URL the app was opened with (the link from the reset email).
