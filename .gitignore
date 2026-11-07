@@ -43,3 +43,7 @@ yarn-error.*
 
 # IDEs and editors
 .vscode
+
+# Next.js (not used by this project; created if `next dev` is run here)
+.next/
+next-env.d.ts

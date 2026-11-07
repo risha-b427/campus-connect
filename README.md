@@ -2,11 +2,52 @@
 
 Campus Connect is a mobile app and API built with Expo, React Native, TypeScript, Expo Router, Node.js, and Express.
 
+## Start here
+
+Follow these steps to run the project locally from Bash.
+
+### Prerequisites
+
+- [Node.js 22.13 or newer](https://nodejs.org/)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [Git](https://git-scm.com/downloads)
+
+Docker Desktop must be running before you start the local Supabase database.
+
+### First-time setup
+
+Run these commands from the repository root:
+
+```bash
+npm install
+npm --prefix backend install
+npm --prefix mobile install
+cp backend/.env.example backend/.env
+npm run db:start
+npm run db:reset
+```
+
+Start the backend in one terminal:
+
+```bash
+npm run backend:dev
+```
+
+Start the mobile app in a second terminal:
+
+```bash
+npm run mobile
+```
+
+Then open the QR code with Expo Go, press `w` for web, or press `a` for an Android emulator.
+
+For more details, see the [backend guide](backend/README.md) and [mobile guide](mobile/README.md).
+
 ## Tech stack
 
 | Area | Technology |
 | --- | --- |
-| Mobile framework | Expo SDK 57, React Native |
+| Mobile framework | Expo SDK 58, React Native |
 | Backend API | Node.js, Express |
 | Language | TypeScript |
 | Navigation | Expo Router |
@@ -26,30 +67,32 @@ The backend connects directly to the Supabase Postgres database. The Supabase CL
 
 Run these commands from the repository root:
 
-```powershell
-npm run db:start # Starts supabase
+```bash
+npm run db:start
 npx supabase status
 ```
 
-Create a migration when changing the database schema, then edit its SQL file under `supabase/migrations/`:
+Create a migration when changing the database schema:
 
-```powershell
-npx supabase migration new <name of change>
+```bash
+npx supabase migration new <name-of-change>
 ```
 
-Apply pending migrations with `npm run db:up`. To rebuild the local database from all migrations, use `npm run db:reset`; this clears local database data. 
+Edit the generated file under `supabase/migrations/`, then apply pending migrations:
 
-Root shortcuts are also available for the backend and mobile app (look into the root package.json if you want to see what these shortcuts are actually doing):
-
-```powershell
-npm run backend:dev # Starts backend
-npm run mobile # Starts frontend
+```bash
+npm run db:up
 ```
 
-## Mobile app guide
+To rebuild the local database from all migrations and reload seed data, use:
 
-See [mobile/README.md](mobile/README.md) for complete onboarding, development commands, quality checks, and frontend structure conventions.
+```bash
+npm run db:reset
+```
 
-## Backend API guide
+Resetting clears local database data.
 
-See [backend/README.md](backend/README.md) for complete onboarding, development commands, quality checks, and backend structure conventions.
+## Guides
+
+- [Backend API guide](backend/README.md)
+- [Mobile app guide](mobile/README.md)

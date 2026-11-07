@@ -15,10 +15,10 @@ INSERT INTO public.spots (
     id, name, description, building_id, latitude, longitude, spot_type
 )
 VALUES
-    ('22222222-2222-4222-8222-222222222221', 'Grainger Engineering Library', 'Building-level map pin; exact indoor study area is not mapped.', '11111111-1111-4111-8111-111111111111', 40.112688, -88.226885, 'Library'),
-    ('22222222-2222-4222-8222-222222222222', 'Main Library', 'Building-level map pin; exact indoor study area is not mapped.', '11111111-1111-4111-8111-111111111112', 40.104893, -88.229053, 'Library'),
-    ('22222222-2222-4222-8222-222222222223', 'Illini Union', 'Building-level map pin; exact indoor lounge is not mapped.', '11111111-1111-4111-8111-111111111113', 40.109382, -88.227201, 'Lounge'),
-    ('22222222-2222-4222-8222-222222222224', 'Thomas M. Siebel Center for Computer Science', 'Building-level map pin; exact indoor study area is not mapped.', '11111111-1111-4111-8111-111111111114', 40.113975, -88.224883, 'Lounge'),
-    ('22222222-2222-4222-8222-222222222225', 'Campus Instructional Facility', 'Building-level map pin; exact indoor study area is not mapped.', '11111111-1111-4111-8111-111111111115', 40.112583, -88.228374, 'Lounge'),
-    ('22222222-2222-4222-8222-222222222226', 'Caffe Paradiso', 'Building-level map pin; exact indoor seating area is not mapped.', '11111111-1111-4111-8111-111111111116', 40.105798, -88.219327, 'Cafe')
+    ('22222222-2222-4222-8222-222222222221', 'Grainger Library First Floor', 'Engineering library floor with quiet study areas, group tables, computer workstations, and collaborative learning spaces.', '11111111-1111-4111-8111-111111111111', 40.112688, -88.226885, 'Library'),
+    ('22222222-2222-4222-8222-222222222222', 'Orange Room', 'Bright library study room with tables and seating for individual work, reading, and small-group study.', '11111111-1111-4111-8111-111111111112', 40.10495787759158, -88.22842472266775, 'Library'),
+    ('22222222-2222-4222-8222-222222222223', 'Illini Union Basement', 'Social recreation area with bowling, billiards, arcade games, food options, and space to gather with friends.', '11111111-1111-4111-8111-111111111113', 40.10940730843477, -88.22722444978815, 'Lounge'),
+    ('22222222-2222-4222-8222-222222222224', 'Basement', 'Lower-level student space with informal seating for studying, collaborating, and taking a break between classes.', '11111111-1111-4111-8111-111111111114', 40.113975, -88.224883, 'Lounge'),
+    ('22222222-2222-4222-8222-222222222225', 'Expresso Royale', 'Campus cafe serving coffee and light refreshments with seating for studying, meetings, and relaxing between classes.', '11111111-1111-4111-8111-111111111115', 40.11250959834841, -88.22823835557583, 'Cafe'),
+    ('22222222-2222-4222-8222-222222222226', 'Caffe Paradiso', 'Independent cafe serving coffee and baked goods with informal seating for studying, meetings, and socializing.', '11111111-1111-4111-8111-111111111116', 40.105787432877285, -88.21932365957498, 'Cafe')
 ON CONFLICT (id) DO NOTHING;
