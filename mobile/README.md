@@ -76,6 +76,36 @@ Users sign up and log in with an email and password through Supabase Auth. The a
 
 ### Set up your environment file
 
+The app needs two values: the Supabase project URL and the project's publishable key. Choose one setup.
+
+#### Option A: the team's shared remote project (recommended, no Docker)
+
+1. Open the **Env Variables** document in the team's Google Drive and follow its instructions to get the credentials.
+2. From the repository root, copy the example file and put the project URL and the publishable key (it starts with `sb_publishable_`) into it:
+
+   ```bash
+   cp mobile/.env.example mobile/.env.local
+   ```
+
+   ```text
+   EXPO_PUBLIC_SUPABASE_URL=https://<your-project>.supabase.co
+   EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+   ```
+
+3. The backend has its own file, `backend/.env` (copy `backend/.env.example`). Fill it in from the same document. The app and the backend must use the **same** Supabase project, or the backend will reject the app's login token with a 401 error.
+4. Restart Expo after changing `.env.local`.
+
+Because the remote project is shared and lives on the internet:
+
+- You do not need Docker, `npm run db:start`, or your computer's network address. A phone can reach the project from any network.
+- Everyone shares the same data. Accounts you create show up for the whole team, so use obviously fake test emails and throwaway passwords.
+- Database changes (migrations, including the one that creates a profile row for each new user) are not applied by `npm run db:reset`, which only affects a local database. Whoever manages the remote project has to apply them, and `seed.sql` has to be loaded there separately. Until the profile migration is applied, sign-up works but no row appears in `public.users`.
+- Supabase's settings are in its dashboard, not in `supabase/config.toml`. For password reset, add `mobile://reset-password` under Authentication, then URL Configuration. The project may also require people to confirm their email after signing up (the sign-up screen then shows "Check your email"), and reset and confirmation emails go to real inboxes.
+
+#### Option B: your own local Supabase (needs Docker)
+
+Use this if you want a private database, or to run the auth tests.
+
 1. Start local Supabase from the repository root (Docker Desktop must be running):
 
    ```bash
@@ -98,7 +128,9 @@ Users sign up and log in with an email and password through Supabase Auth. The a
 
 4. Restart Expo after changing `.env.local`.
 
-`.env.local` is ignored by git. Anything starting with `EXPO_PUBLIC_` is bundled into the app and visible to anyone who has it, so only put public values there. Never put the `service_role` or secret key in the mobile app.
+#### Keep your credentials safe
+
+`.env.local` and `backend/.env` are ignored by git. Never commit them, and never paste credentials into GitHub comments, pull requests, or chat. Anything starting with `EXPO_PUBLIC_` is bundled into the app and visible to anyone who has it, so only the project URL and the publishable key belong in `mobile/.env.local`. A secret key, a `service_role` key, or a database password belongs only in the backend, never in the mobile app.
 
 ### How it works
 
@@ -141,7 +173,7 @@ The Forgot password screen sends a reset email. The link in it opens the app on 
 - Local Supabase: `additional_redirect_urls` in `supabase/config.toml`. Restart Supabase after changing it.
 - Hosted Supabase: Authentication, then URL Configuration, in the Supabase dashboard. Add `mobile://reset-password`.
 
-With local Supabase, reset emails are not delivered to a real inbox. Open http://127.0.0.1:54324 (Mailpit) to read them.
+With local Supabase, reset emails are not delivered to a real inbox. Open http://127.0.0.1:54324 (Mailpit) to read them. With the remote project, they go to the real inbox of the address you entered.
 
 Known limitation: local Supabase does not redirect to Expo Go addresses that use an IP (for example `exp://192.168.1.5:8081/--/reset-password`), so the link will not open the app from Expo Go on a phone. Links that use this app's `mobile://` scheme work, so a development or production build should be fine, but this has not been tried.
 
@@ -152,11 +184,11 @@ Run these from the `mobile` directory. They use Node's built-in test runner, so 
 ```bash
 npm test            # unit tests, plus the auth tests if local Supabase is running
 npm run test:unit   # unit tests only, nothing needs to be running
-npm run test:auth   # auth tests only, needs Docker and `npm run db:start`
+npm run test:auth   # auth tests only, needs Docker and `npm run db:start` (local only)
 ```
 
 - `tests/resetLink.test.mjs` checks how the app reads a password reset link.
-- `tests/auth.integration.test.mjs` signs real test users up against local Supabase and checks sign up, the profile row, log in, log out, staying logged in, and the password reset email and link. Every test user is deleted afterwards. If local Supabase is not running, these tests are skipped with a message. Supabase allows 30 sign-ups and logins per 5 minutes from one address, so avoid running the auth tests many times in a row.
+- `tests/auth.integration.test.mjs` signs real test users up against local Supabase and checks sign up, the profile row, log in, log out, staying logged in, and the password reset email and link. Every test user is deleted afterwards. The auth tests only ever run against a Supabase on your own computer (Option B above). They create and delete users with an admin key, so they refuse to run, with a message, if the URL is not a local address, which protects the team's shared remote project. If local Supabase is not running, they are skipped too, so the remote setup never needs Docker. Supabase allows 30 sign-ups and logins per 5 minutes from one address, so avoid running the auth tests many times in a row.
 
 The tests do not check what the screens look like. Run the app to check that.
 

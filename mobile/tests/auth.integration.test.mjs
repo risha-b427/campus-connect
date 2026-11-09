@@ -1,7 +1,8 @@
 // Integration tests for Supabase Auth, the profile trigger, and password reset.
 //
 // They talk to the LOCAL Supabase, so Docker and `npm run db:start` (repo root)
-// must be running. If Supabase is not running, every test is skipped.
+// must be running. If Supabase is not running, or the URL is not a local
+// address (for example the team's hosted project), every test is skipped.
 // Each test user is created with a random email and deleted afterwards.
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
@@ -62,9 +63,27 @@ async function isReachable(config) {
   }
 }
 
+// These tests create and delete users with an admin key, so they must never run
+// against a shared or hosted project. Only a Supabase on this computer is allowed.
+function isLocalUrl(url) {
+  try {
+    return ["127.0.0.1", "localhost", "[::1]"].includes(new URL(url).hostname);
+  } catch {
+    return false;
+  }
+}
+
 const config = loadConfig();
-const running = config && (await isReachable(config));
-const skip = running ? false : "Local Supabase is not running (start Docker, then npm run db:start)";
+const notLocal = Boolean(config) && !isLocalUrl(config.url);
+const running = Boolean(config) && !notLocal && (await isReachable(config));
+
+let skip = false;
+if (notLocal) {
+  skip =
+    "Refusing to run: SUPABASE_URL is not a local address. These tests create and delete users, so they only run against the local Supabase (start Docker, then npm run db:start).";
+} else if (!running) {
+  skip = "Local Supabase is not running (start Docker, then npm run db:start)";
+}
 
 describe("Supabase Auth", { skip }, () => {
   const createdUserIds = [];
