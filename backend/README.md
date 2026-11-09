@@ -92,6 +92,33 @@ npm run db:reset
 
 Resetting clears local database data.
 
+### Check-in schema
+
+Apply pending local migrations with `npm run db:up`. The check-in table
+includes optional `note` text and permits busyness and noise to be omitted until checkout.
+API fields `busyness` and `noise` map to database columns `crowd_level` and
+`noise_level`, respectively. Both must be integers from 1–10 at checkout,
+and the checkout timestamp and both values must be saved in the same update.
+An active check-in has a null `check_out_time`, `crowd_level`, and `noise_level`.
+
+Overall study-spot ratings live separately in `public.ratings`, with `user_id`,
+`spot_id`, an integer `rating` from 1 (worst) to 10 (best), and `created_at`.
+The composite primary key `(user_id, spot_id)` enforces one overall rating per
+user per spot, including concurrent submissions. The API should reject duplicate
+ratings (Postgres code `23505` on `ratings_pkey`) with `409 Conflict` rather than
+overwriting the existing rating. Repeat visits can still submit busyness and
+noise at checkout without creating another overall rating. If an overall rating
+is accepted during checkout, save it and the checkout in the same transaction.
+
+Check-ins reference `auth.users(id)` directly, so a verified user does not need
+a `public.users` profile before checking in. A unique partial index named
+`check_ins_one_active_per_user` prevents concurrent requests from creating
+multiple active check-ins for the same user. The API should map violations
+of this index (Postgres code `23505`) to `409 Conflict`.
+
+Row Level Security remains enabled, and the
+backend must still enforce ownership using the verified `req.user.id`.
+
 ## Tests and checks
 
 From the repository root:
