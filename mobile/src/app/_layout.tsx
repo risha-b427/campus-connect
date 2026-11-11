@@ -17,8 +17,9 @@ function RootNavigator() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {/* Only logged-out people can see these screens. */}
-      <Stack.Protected guard={!session}>
+      {/* Only logged-out people can see these screens. After logging in or
+          signing up, go to Home. */}
+      <Stack.Protected guard={!session} redirectTo="/(tabs)/home">
         <Stack.Screen name="index" />
         <Stack.Screen name="sign-up" />
         <Stack.Screen name="forgot-password" />
@@ -27,8 +28,9 @@ function RootNavigator() {
       {/* The reset link logs you in briefly, so this screen is open to everyone. */}
       <Stack.Screen name="reset-password" />
 
-      {/* Only logged-in people can see the app. */}
-      <Stack.Protected guard={!!session}>
+      {/* Only logged-in people can see the app. After logging out, go back to
+          the login screen. */}
+      <Stack.Protected guard={!!session} redirectTo="/">
         <Stack.Screen name="(tabs)" />
         <Stack.Screen
           name="search"
