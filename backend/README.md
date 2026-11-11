@@ -75,6 +75,31 @@ Authorization: Bearer <supabase-access-token>
 
 `GET /api/spots` returns all spots when no filter is supplied. Supported `spotType` values are `Cafe`, `Library`, `University Housing`, `Restaurant`, `Outdoor`, and `Lounge`.
 
+### Check-ins
+
+Check-in endpoints also require a token. They always act as the signed-in user; a user ID sent by the client is ignored.
+
+| Endpoint | Body | Success | Errors |
+| --- | --- | --- | --- |
+| `POST /api/check-ins` | `{ "spotId": "<spot-id>", "note": "optional" }` | `201` with the new check-in | `400` invalid input or unknown spot; `409` user already has an active check-in |
+| `PATCH /api/check-ins/:id/check-out` | `{ "busyness": 6, "noise": 3 }` (whole numbers 1–10) | `200` with the completed check-in | `400` invalid input or already checked out; `404` not found or another user's check-in |
+| `GET /api/check-ins/me` | — | `200` with the user's check-ins, newest first (`[]` if none) | — |
+
+Every endpoint returns check-ins in this shape:
+
+```json
+{
+  "id": "check-in-uuid",
+  "spot": { "id": "spot-uuid", "name": "Grainger Library First Floor" },
+  "note": "Studying for CS 225",
+  "checkedInAt": "2026-11-07T14:00:00.000Z",
+  "checkedOutAt": null,
+  "busyness": null,
+  "noise": null,
+  "isActive": true
+}
+```
+
 ## Database changes
 
 Create schema changes in SQL migration files under `supabase/migrations/`:

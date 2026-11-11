@@ -10,14 +10,16 @@ export const { app } = await import("../../src/app.js");
 export const { db } = await import("../../src/services/db.js");
 export const { supabase } = await import("../../src/services/supabase.js");
 
-export function mockAuthenticatedUser() {
+export const testUserId = "00000000-0000-4000-8000-000000000000";
+
+export function mockAuthenticatedUser(userId: string = testUserId) {
   jest.spyOn(supabase.auth, "getClaims").mockResolvedValue({
     data: {
       claims: {
         iss: "https://test.supabase.co/auth/v1",
         aud: "authenticated",
         role: "authenticated",
-        sub: "00000000-0000-4000-8000-000000000000",
+        sub: userId,
         exp: Math.floor(Date.now() / 1000) + 3600,
       },
     },
