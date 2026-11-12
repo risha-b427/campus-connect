@@ -5,7 +5,7 @@ DELETE FROM public.check_ins
 WHERE crowd_level IS NULL OR noise_level IS NULL;
 
 ALTER TABLE public.check_ins
-    DROP CONSTRAINT check_ins_ratings_state_check,
+    DROP CONSTRAINT IF EXISTS check_ins_ratings_state_check,
     ALTER COLUMN crowd_level SET NOT NULL,
     ALTER COLUMN noise_level SET NOT NULL;
 

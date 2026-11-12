@@ -16,14 +16,9 @@ type SpotRow = {
   ratingCount: string;
 };
 
-async function findSpots(spotType?: string): Promise<SpotRow[]> {
-  const values: string[] = [];
-  const filters = spotType
-    ? (() => {
-        values.push(spotType);
-        return "WHERE s.spot_type = $1";
-      })()
-    : "";
+async function querySpots(id?: string): Promise<SpotRow[]> {
+  const values = id === undefined ? [] : [id];
+  const filters = id === undefined ? "" : "WHERE s.id = $1";
 
   const result = await db.query<SpotRow>(
     `
@@ -66,4 +61,14 @@ async function findSpots(spotType?: string): Promise<SpotRow[]> {
   return result.rows;
 }
 
-export { findSpots };
+async function findSpots(): Promise<SpotRow[]> {
+  return querySpots();
+}
+
+async function findSpotById(id: string): Promise<SpotRow | undefined> {
+  const rows = await querySpots(id);
+  return rows[0];
+}
+
+export type { SpotRow };
+export { findSpots, findSpotById };

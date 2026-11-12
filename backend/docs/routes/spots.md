@@ -14,25 +14,20 @@ ratings. Results are ordered by spot name, then ID.
 
 ### Query parameters
 
-| Parameter | Type | Required | Description |
-| --- | --- | --- | --- |
-| `spotType` | string | No | Exact, case-sensitive spot type; only one value is accepted |
-
-Supported types: `Cafe`, `Library`, `University Housing`, `Restaurant`, `Outdoor`,
-and `Lounge`. Omitting the filter returns all spots. An empty value is invalid.
+None. The endpoint returns all spots; query parameters are ignored. The frontend
+can filter using the returned `spotType` field: `Cafe`, `Library`,
+`University Housing`, `Restaurant`, `Outdoor`, or `Lounge`.
 
 ### Request
 
 ```http
-GET /api/spots?spotType=Library
+GET /api/spots
 Authorization: Bearer <supabase-access-token>
 ```
 
-URL-encode spaces when filtering by `University Housing`.
-
 ### Response
 
-`200 OK`. Returns `[]` when there are no matching spots.
+`200 OK`. Returns `[]` when there are no spots.
 
 ```json
 [
@@ -85,8 +80,62 @@ They remain included after their authors check out.
 
 | Status | Message / meaning |
 | --- | --- |
-| `400` | `spotType must be a single value` for repeated/non-string values |
-| `400` | `Unsupported spot type: <value>` for an unsupported or empty value |
+| `401` | Missing or invalid access token |
+| `503` | Authentication service unavailable |
+| `500` | Unexpected server error |
+
+## GET /api/spots/:id
+
+Returns the latest data for one spot, for example when a user clicks a map pin.
+Each request reads current database values. Responses from this handler include
+`Cache-Control: no-store` so clients and intermediaries do not store the response.
+
+**Authentication:** Required; see [authentication and shared errors](../README.md).
+**Request body:** None. **Query parameters:** None; query parameters are ignored.
+
+### Path parameters
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | Yes | Spot UUID in hyphenated UUID format |
+
+### Request
+
+```http
+GET /api/spots/22222222-2222-4222-8222-222222222221
+Authorization: Bearer <supabase-access-token>
+```
+
+### Response
+
+`200 OK` with one object, rather than an array. Fields, aggregate calculations,
+one-decimal rounding, numeric conversions, and null defaults are identical to
+the list endpoint.
+
+```json
+{
+  "id": "22222222-2222-4222-8222-222222222221",
+  "name": "Grainger Library First Floor",
+  "description": "Study space",
+  "buildingId": "11111111-1111-4111-8111-111111111111",
+  "building": "Grainger Engineering Library",
+  "latitude": 40.112688,
+  "longitude": -88.226885,
+  "spotType": "Library",
+  "activeCheckInCount": 3,
+  "averageNoise": 4.3,
+  "averageCrowdedness": 6.7,
+  "averageRating": 3.5,
+  "ratingCount": 2
+}
+```
+
+### Errors
+
+| Status | Message / meaning |
+| --- | --- |
+| `400` | `Invalid spot ID` for a malformed UUID |
+| `404` | `Spot not found` for a valid UUID without a matching spot |
 | `401` | Missing or invalid access token |
 | `503` | Authentication service unavailable |
 | `500` | Unexpected server error |
