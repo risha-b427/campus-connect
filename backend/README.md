@@ -26,7 +26,7 @@ Fill in the remote Supabase URL, publishable key, and Postgres connection string
 From the repository root:
 
 ```bash
-npm run backend:dev
+npm run backend
 ```
 
 Or from this directory:

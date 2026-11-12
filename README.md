@@ -36,7 +36,7 @@ cp backend/.env.example backend/.env
 Start the backend in one terminal:
 
 ```bash
-npm run backend:dev
+npm run backend
 ```
 
 Start the mobile app in a second terminal:
