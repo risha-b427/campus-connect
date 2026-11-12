@@ -70,6 +70,128 @@ Use `npm install <package>` for ordinary JavaScript-only dependencies.
 
 The mobile app must call the Express backend for database-backed features. Never put `DATABASE_URL` or a privileged Supabase key in the mobile app.
 
+## Authentication
+
+Users sign up and log in with an email and password through Supabase Auth. The app talks to Supabase Auth directly for this, using Supabase's public publishable key (it starts with `sb_publishable_`). Everything else that reads or writes the database still goes through the Express backend (see Database access below).
+
+### Set up your environment file
+
+The app needs two values: the Supabase project URL and the project's publishable key. Choose one setup.
+
+#### Option A: the team's shared remote project (recommended, no Docker)
+
+1. Open the **Env Variables** document in the team's Google Drive and follow its instructions to get the credentials.
+2. From the repository root, copy the example file and put the project URL and the publishable key (it starts with `sb_publishable_`) into it:
+
+   ```bash
+   cp mobile/.env.example mobile/.env.local
+   ```
+
+   ```text
+   EXPO_PUBLIC_SUPABASE_URL=https://<your-project>.supabase.co
+   EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+   ```
+
+3. The backend has its own file, `backend/.env` (copy `backend/.env.example`). Fill it in from the same document. The app and the backend must use the **same** Supabase project, or the backend will reject the app's login token with a 401 error.
+4. Restart Expo after changing `.env.local`.
+
+Because the remote project is shared and lives on the internet:
+
+- You do not need Docker, `npm run db:start`, or your computer's network address. A phone can reach the project from any network.
+- Everyone shares the same data. Accounts you create show up for the whole team, so use obviously fake test emails and throwaway passwords.
+- Database changes (migrations, including the one that creates a profile row for each new user) are not applied by `npm run db:reset`, which only affects a local database. Whoever manages the remote project has to apply them, and `seed.sql` has to be loaded there separately. Until the profile migration is applied, sign-up works but no row appears in `public.users`.
+- Supabase's settings are in its dashboard, not in `supabase/config.toml`. For password reset, add `mobile://reset-password` under Authentication, then URL Configuration. The project may also require people to confirm their email after signing up (the sign-up screen then shows "Check your email"), and reset and confirmation emails go to real inboxes.
+
+#### Option B: your own local Supabase (needs Docker)
+
+Use this if you want a private database, or to run the auth tests.
+
+1. Start local Supabase from the repository root (Docker Desktop must be running):
+
+   ```bash
+   npm run db:start
+   npm run db:reset
+   ```
+
+   `db:reset` applies every migration, including the one that creates a profile row for each new user.
+
+2. Still in the repository root, copy the example file and fill it in:
+
+   ```bash
+   cp mobile/.env.example mobile/.env.local
+   npx supabase status -o env
+   ```
+
+   Put the `API_URL` value in `EXPO_PUBLIC_SUPABASE_URL` and the `PUBLISHABLE_KEY` value in `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+
+3. A phone cannot reach `127.0.0.1`, because that means "this device". Replace it with your computer's address on the Wi-Fi network, for example `http://192.168.1.20:54321`. On macOS, `ipconfig getifaddr en0` prints it. The address changes when you switch networks. An emulator, simulator, or the web build can use `127.0.0.1`.
+
+4. Restart Expo after changing `.env.local`.
+
+#### Keep your credentials safe
+
+`.env.local` and `backend/.env` are ignored by git. Never commit them, and never paste credentials into GitHub comments, pull requests, or chat. Anything starting with `EXPO_PUBLIC_` is bundled into the app and visible to anyone who has it, so only the project URL and the publishable key belong in `mobile/.env.local`. A secret key, a `service_role` key, or a database password belongs only in the backend, never in the mobile app.
+
+### How it works
+
+| File | What it does |
+| --- | --- |
+| `src/shared/lib/supabase.ts` | Creates the one shared Supabase client. It saves the login in AsyncStorage, which keeps people logged in after the app closes. |
+| `src/features/auth/AuthProvider.tsx` | Loads the saved login on startup and keeps it up to date. Read it in any component with `useAuth()`, which returns `{ session, loading }`. |
+| `src/app/_layout.tsx` | Uses `Stack.Protected`: logged-out users can only open the login, sign-up, and forgot-password screens, and logged-in users can only open the app. Logging in or out switches between them automatically, so screens do not need to navigate by hand. |
+| `src/features/auth/screens/` | The Log in, Sign up, Forgot password, and Reset password screens. |
+| `src/features/auth/components/` | `PasswordInput` (Show / Hide toggle), `AuthButton` (press animation and spinner), and `Entrance` (slide-in and error shake, skipped when the device has Reduce Motion on). |
+| `src/features/auth/resetLink.ts` | Reads the tokens or error message out of the link in a password reset email. |
+| `src/features/auth/authStyles.ts` | Shared styles for the auth screens, including the Illinois blue and orange colors. |
+
+To get the logged-in user in a component:
+
+```tsx
+const { session } = useAuth();
+const email = session?.user.email;
+```
+
+To call a protected backend endpoint, send the access token. The backend's `requireAuth` middleware checks it:
+
+```ts
+const { data } = await supabase.auth.getSession();
+fetch(`${API_URL}/api/spots`, {
+  headers: { Authorization: `Bearer ${data.session?.access_token}` },
+});
+```
+
+### New users get a profile automatically
+
+The migration `supabase/migrations/20261021000000_create_profile_on_signup.sql` adds a database trigger. When someone signs up, it inserts a row into `public.users`. Because `username` and `display_name` are required, they are generated from the email: the display name is the part before the `@`, and the username is that name (lowercase, letters, numbers and underscores only) plus 8 characters of the user id so it is unique. Accounts created before the migration was applied do not get a profile row.
+
+`public.users` has row level security turned on and no read policy yet, so the app cannot read profile rows until one is added.
+
+### Forgot password
+
+The Forgot password screen sends a reset email. The link in it opens the app on the Reset password screen, which asks for a new password. The app address the link returns to must be allowed in Supabase:
+
+- Local Supabase: `additional_redirect_urls` in `supabase/config.toml`. Restart Supabase after changing it.
+- Hosted Supabase: Authentication, then URL Configuration, in the Supabase dashboard. Add `mobile://reset-password`.
+
+With local Supabase, reset emails are not delivered to a real inbox. Open http://127.0.0.1:54324 (Mailpit) to read them. With the remote project, they go to the real inbox of the address you entered.
+
+Known limitation: local Supabase does not redirect to Expo Go addresses that use an IP (for example `exp://192.168.1.5:8081/--/reset-password`), so the link will not open the app from Expo Go on a phone. Links that use this app's `mobile://` scheme work, so a development or production build should be fine, but this has not been tried.
+
+### Tests
+
+Run these from the `mobile` directory. They use Node's built-in test runner, so no extra packages are needed.
+
+```bash
+npm test            # unit tests, plus the auth tests if local Supabase is running
+npm run test:unit   # unit tests only, nothing needs to be running
+npm run test:auth   # auth tests only, needs Docker and `npm run db:start` (local only)
+```
+
+- `tests/resetLink.test.mjs` checks how the app reads a password reset link.
+- `tests/auth.integration.test.mjs` signs real test users up against local Supabase and checks sign up, the profile row, log in, log out, staying logged in, and the password reset email and link. Every test user is deleted afterwards. The auth tests only ever run against a Supabase on your own computer (Option B above). They create and delete users with an admin key, so they refuse to run, with a message, if the URL is not a local address, which protects the team's shared remote project. If local Supabase is not running, they are skipped too, so the remote setup never needs Docker. Supabase allows 30 sign-ups and logins per 5 minutes from one address, so avoid running the auth tests many times in a row.
+
+The tests do not check what the screens look like. Run the app to check that.
+
 ## Frontend structure
 
 ```text
@@ -77,7 +199,7 @@ src/
   app/                    # Expo Router routes and navigator layouts only
     (tabs)/               # Bottom-tab route group
   features/               # Feature-owned screens, components, hooks, API calls, and types
-    auth/
+    auth/                 # Log in, sign up, password reset, AuthProvider, and auth components
     home/
     study-spots/
     feed/
@@ -85,7 +207,9 @@ src/
   shared/                 # Code intentionally used by multiple features
     components/
     data/
+    lib/                  # Shared setup code, such as the Supabase client
     utils/
+tests/                    # Node test runner tests (see Authentication)
 ```
 
 Keep route files in `src/app/` thin. Put feature-specific code in `src/features/<feature>/` and reusable code in `src/shared/`.
