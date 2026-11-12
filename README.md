@@ -76,5 +76,6 @@ The frontend connects to Supabase Client using the credentials configured in `mo
 
 ## Guides
 
-- [Backend API guide](backend/README.md)
+- [Backend setup guide](backend/README.md)
+- [API reference](backend/docs/README.md)
 - [Mobile app guide](mobile/README.md)
