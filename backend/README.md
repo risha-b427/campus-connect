@@ -38,59 +38,20 @@ npm run dev
 
 The API runs at `http://localhost:3000`.
 
-## API endpoints
+## API documentation
 
-The health endpoint is public:
+See the [API reference](docs/README.md) for authentication, shared errors, and
+documentation grouped by resource:
 
-```text
-GET http://localhost:3000/api/health
-```
-
-Buildings and spots require a Supabase access token:
-
-```text
-GET http://localhost:3000/api/buildings
-GET http://localhost:3000/api/spots
-GET http://localhost:3000/api/spots?spotType=Library
-```
-
-Send the token in this header:
-
-```text
-Authorization: Bearer <supabase-access-token>
-```
-
-`GET /api/spots` returns all spots when no filter is supplied. Supported `spotType` values are `Cafe`, `Library`, `University Housing`, `Restaurant`, `Outdoor`, and `Lounge`.
+- [GET /api/health](docs/routes/health.md)
+- [GET /api/buildings](docs/routes/buildings.md)
+- [GET /api/spots](docs/routes/spots.md)
 
 ## Database changes
 
-If you need a database schema change, contact the backend tech lead before creating or applying a migration. Migrations are kept under `supabase/migrations/` and are applied to the shared remote project by admins. `supabase/seed.sql` is retained as seed data; do not run a local database reset against the shared project.
-
-### Check-in schema
-
-The check-in table includes optional `note` text and permits busyness and noise to be omitted until checkout.
-API fields `busyness` and `noise` map to database columns `crowd_level` and
-`noise_level`, respectively. Both must be integers from 1–10 at checkout,
-and the checkout timestamp and both values must be saved in the same update.
-An active check-in has a null `check_out_time`, `crowd_level`, and `noise_level`.
-
-Overall study-spot ratings live separately in `public.ratings`, with `user_id`,
-`spot_id`, an integer `rating` from 1 (worst) to 10 (best), and `created_at`.
-The composite primary key `(user_id, spot_id)` enforces one overall rating per
-user per spot, including concurrent submissions. The API should reject duplicate
-ratings (Postgres code `23505` on `ratings_pkey`) with `409 Conflict` rather than
-overwriting the existing rating. Repeat visits can still submit busyness and
-noise at checkout without creating another overall rating. If an overall rating
-is accepted during checkout, save it and the checkout in the same transaction.
-
-Check-ins reference `auth.users(id)` directly, so a verified user does not need
-a `public.users` profile before checking in. A unique partial index named
-`check_ins_one_active_per_user` prevents concurrent requests from creating
-multiple active check-ins for the same user. The API should map violations
-of this index (Postgres code `23505`) to `409 Conflict`.
-
-Row Level Security remains enabled, and the
-backend must still enforce ownership using the verified `req.user.id`.
+Contact the backend tech lead before creating or applying migrations. Admins
+apply migrations from `supabase/migrations/` to the shared remote project.
+Do not reset the shared database.
 
 ## Tests and checks
 
@@ -101,6 +62,10 @@ npm run backend:typecheck
 npm --prefix backend test
 ```
 
+API tests mock database queries and authentication, so they require no running
+database, Docker, or shared credentials. They verify HTTP behavior and response
+mapping; they do not execute migrations or SQL aggregation against PostgreSQL.
+
 ## Database access and security
 
 The API verifies Supabase access tokens with `auth.getClaims()`. The health endpoint is public; protected routes are mounted after the authentication middleware in `src/app.ts`.
@@ -110,6 +75,7 @@ The API connects to Postgres using `DATABASE_URL`. Keep database credentials on 
 ## Code layout
 
 ```text
+docs/             # API reference and resource pages
 src/
   features/       # API routes and feature-specific logic
   middleware/     # Shared middleware

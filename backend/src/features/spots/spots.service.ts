@@ -20,6 +20,11 @@ type Spot = {
   latitude: number;
   longitude: number;
   spotType: SpotType;
+  activeCheckInCount: number;
+  averageNoise: number | null;
+  averageCrowdedness: number | null;
+  averageRating: number | null;
+  ratingCount: number;
 };
 
 function isSpotType(value: string): value is SpotType {
@@ -39,6 +44,12 @@ async function getSpots(spotType?: SpotType): Promise<Spot[]> {
       spotType: spot.spotType,
       latitude: Number(spot.latitude),
       longitude: Number(spot.longitude),
+      activeCheckInCount: Number(spot.activeCheckInCount),
+      averageNoise: spot.averageNoise === null ? null : Number(spot.averageNoise),
+      averageCrowdedness:
+        spot.averageCrowdedness === null ? null : Number(spot.averageCrowdedness),
+      averageRating: spot.averageRating === null ? null : Number(spot.averageRating),
+      ratingCount: Number(spot.ratingCount),
     };
   });
 }
