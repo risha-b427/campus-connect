@@ -4,14 +4,13 @@ The backend is an Express API that reads and writes data in Supabase Postgres.
 
 ## First-time setup
 
-Install Node.js 22.13 or newer and Docker Desktop. Docker Desktop must be running.
+Install Node.js 22.13 or newer. Campus Connect connects to the shared remote Supabase project; a local Supabase stack and Docker Desktop are not required.
 
-From the repository root, install dependencies and start Supabase:
+From the repository root, install dependencies:
 
 ```bash
 npm install
 npm --prefix backend install
-npm run db:start
 ```
 
 Create the backend environment file:
@@ -20,19 +19,7 @@ Create the backend environment file:
 cp backend/.env.example backend/.env
 ```
 
-The example is configured for the local database. View the local Supabase URL and publishable key with:
-
-```bash
-npx supabase status
-```
-
-Keep `.env` on your computer; never commit it or put database credentials in the mobile app.
-
-Apply migrations and seed data:
-
-```bash
-npm run db:reset
-```
+Fill in the remote Supabase URL, publishable key, and Postgres connection string using the shared credentials. Keep `.env` on your computer; never commit it or put database credentials in the mobile app.
 
 ## Run the API
 
@@ -77,25 +64,11 @@ Authorization: Bearer <supabase-access-token>
 
 ## Database changes
 
-Create schema changes in SQL migration files under `supabase/migrations/`:
-
-```bash
-npx supabase migration new <description>
-npm run db:up
-```
-
-To rebuild the local database from all migrations and reload seed data:
-
-```bash
-npm run db:reset
-```
-
-Resetting clears local database data.
+If you need a database schema change, contact the backend tech lead before creating or applying a migration. Migrations are kept under `supabase/migrations/` and are applied to the shared remote project by admins. `supabase/seed.sql` is retained as seed data; do not run a local database reset against the shared project.
 
 ### Check-in schema
 
-Apply pending local migrations with `npm run db:up`. The check-in table
-includes optional `note` text and permits busyness and noise to be omitted until checkout.
+The check-in table includes optional `note` text and permits busyness and noise to be omitted until checkout.
 API fields `busyness` and `noise` map to database columns `crowd_level` and
 `noise_level`, respectively. Both must be integers from 1–10 at checkout,
 and the checkout timestamp and both values must be saved in the same update.
