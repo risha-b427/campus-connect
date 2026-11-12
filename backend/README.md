@@ -4,14 +4,13 @@ The backend is an Express API that reads and writes data in Supabase Postgres.
 
 ## First-time setup
 
-Install Node.js 22.13 or newer and Docker Desktop. Docker Desktop must be running.
+Install Node.js 22.13 or newer. Campus Connect connects to the shared remote Supabase project; a local Supabase stack and Docker Desktop are not required.
 
-From the repository root, install dependencies and start Supabase:
+From the repository root, install dependencies:
 
 ```bash
 npm install
 npm --prefix backend install
-npm run db:start
 ```
 
 Create the backend environment file:
@@ -20,19 +19,7 @@ Create the backend environment file:
 cp backend/.env.example backend/.env
 ```
 
-The example is configured for the local database. View the local Supabase URL and publishable key with:
-
-```bash
-npx supabase status
-```
-
-Keep `.env` on your computer; never commit it or put database credentials in the mobile app.
-
-Apply migrations and seed data:
-
-```bash
-npm run db:reset
-```
+Fill in the remote Supabase URL, publishable key, and Postgres connection string using the shared credentials. Keep `.env` on your computer; never commit it or put database credentials in the mobile app.
 
 ## Run the API
 
@@ -77,20 +64,33 @@ Authorization: Bearer <supabase-access-token>
 
 ## Database changes
 
-Create schema changes in SQL migration files under `supabase/migrations/`:
+If you need a database schema change, contact the backend tech lead before creating or applying a migration. Migrations are kept under `supabase/migrations/` and are applied to the shared remote project by admins. `supabase/seed.sql` is retained as seed data; do not run a local database reset against the shared project.
 
-```bash
-npx supabase migration new <description>
-npm run db:up
-```
+### Check-in schema
 
-To rebuild the local database from all migrations and reload seed data:
+The check-in table includes optional `note` text and permits busyness and noise to be omitted until checkout.
+API fields `busyness` and `noise` map to database columns `crowd_level` and
+`noise_level`, respectively. Both must be integers from 1–10 at checkout,
+and the checkout timestamp and both values must be saved in the same update.
+An active check-in has a null `check_out_time`, `crowd_level`, and `noise_level`.
 
-```bash
-npm run db:reset
-```
+Overall study-spot ratings live separately in `public.ratings`, with `user_id`,
+`spot_id`, an integer `rating` from 1 (worst) to 10 (best), and `created_at`.
+The composite primary key `(user_id, spot_id)` enforces one overall rating per
+user per spot, including concurrent submissions. The API should reject duplicate
+ratings (Postgres code `23505` on `ratings_pkey`) with `409 Conflict` rather than
+overwriting the existing rating. Repeat visits can still submit busyness and
+noise at checkout without creating another overall rating. If an overall rating
+is accepted during checkout, save it and the checkout in the same transaction.
 
-Resetting clears local database data.
+Check-ins reference `auth.users(id)` directly, so a verified user does not need
+a `public.users` profile before checking in. A unique partial index named
+`check_ins_one_active_per_user` prevents concurrent requests from creating
+multiple active check-ins for the same user. The API should map violations
+of this index (Postgres code `23505`) to `409 Conflict`.
+
+Row Level Security remains enabled, and the
+backend must still enforce ownership using the verified `req.user.id`.
 
 ## Tests and checks
 

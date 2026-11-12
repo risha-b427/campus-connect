@@ -7,12 +7,9 @@ if (!connectionString) {
   throw new Error("DATABASE_URL must be set in the backend environment.");
 }
 
-const hostname = new URL(connectionString).hostname;
-const isLocal = ["localhost", "127.0.0.1", "[::1]"].includes(hostname);
-
 export const db = new pg.Pool({
   connectionString,
-  ssl: isLocal ? false : { rejectUnauthorized: true },
+  ssl: { rejectUnauthorized: true },
   max: 10,
   idleTimeoutMillis: 30_000,
   connectionTimeoutMillis: 10_000,
