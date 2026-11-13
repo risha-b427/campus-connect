@@ -1,32 +1,37 @@
 import { StyleSheet, Text, View } from "react-native";
-import type { StudySpot } from "@/shared/data/mockStudySpots";
+
+import type { Spot } from "../api";
 
 type StudySpotCardProps = {
-  spot: StudySpot;
+  spot: Spot;
 };
 
-export default function StudySpotCard({
-  spot,
-}: StudySpotCardProps) {
+function peopleHereText(count: number): string {
+  if (count === 0) return "No one here now";
+  if (count === 1) return "1 person here now";
+  return `${count} people here now`;
+}
+
+export default function StudySpotCard({ spot }: StudySpotCardProps) {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Text style={styles.name}>{spot.area ?? spot.name}</Text>
+        <Text style={styles.name}>{spot.name}</Text>
 
-        <View
-          style={[
-            styles.badge,
-            spot.isFree ? styles.freeBadge : styles.paidBadge,
-          ]}
-        >
-          <Text style={styles.badgeText}>
-            {spot.isFree ? "Free" : "Paid"}
-          </Text>
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>{spot.spotType}</Text>
         </View>
       </View>
 
-      {spot.area ? <Text style={styles.building}>{spot.name}</Text> : null}
-      <Text style={styles.hours}>Hours: {spot.hours}</Text>
+      <Text style={styles.building}>{spot.building}</Text>
+
+      {spot.description ? (
+        <Text style={styles.description} numberOfLines={2}>
+          {spot.description}
+        </Text>
+      ) : null}
+
+      <Text style={styles.peopleHere}>{peopleHereText(spot.activeCheckInCount)}</Text>
     </View>
   );
 }
@@ -55,12 +60,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 5,
-  },
-  freeBadge: {
-    backgroundColor: "#DCFCE7",
-  },
-  paidBadge: {
-    backgroundColor: "#FEF3C7",
+    backgroundColor: "#E0E7FF",
   },
   badgeText: {
     fontSize: 12,
@@ -72,9 +72,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#475569",
   },
-  hours: {
+  description: {
     marginTop: 8,
     fontSize: 14,
     color: "#475569",
+  },
+  peopleHere: {
+    marginTop: 10,
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#172033",
   },
 });
