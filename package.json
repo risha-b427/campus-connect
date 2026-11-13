@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "backend:dev": "npm --prefix backend run dev",
+    "backend": "npm --prefix backend run dev",
     "backend:typecheck": "npm --prefix backend run typecheck",
     "mobile": "npm --prefix mobile run start"
   }

@@ -36,7 +36,7 @@ cp backend/.env.example backend/.env
 Start the backend in one terminal:
 
 ```bash
-npm run backend:dev
+npm run backend
 ```
 
 Start the mobile app in a second terminal:
@@ -76,5 +76,6 @@ The frontend connects to Supabase Client using the credentials configured in `mo
 
 ## Guides
 
-- [Backend API guide](backend/README.md)
+- [Backend setup guide](backend/README.md)
+- [API reference](backend/docs/README.md)
 - [Mobile app guide](mobile/README.md)
