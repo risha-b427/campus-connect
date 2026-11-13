@@ -1,7 +1,16 @@
 import { useState, type ReactNode } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { useAuth } from "@/features/auth/AuthProvider";
+import { supabase } from "@/shared/lib/supabase";
 import { mockStudySpots } from "@/shared/data/mockStudySpots";
 import { mockCheckIns } from "@/shared/data/mockCheckIns";
 import type { CheckIn } from "@/shared/types";
@@ -273,6 +282,15 @@ function ConnectionRow({ connection }: ConnectionRowProps) {
 }
 
 export function ProfileScreen() {
+  const { session } = useAuth();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    await supabase.auth.signOut();
+    // The app notices the log out and sends you back to the login screen.
+  };
+
   // Read the clock once so "Here now" times stay steady between re-renders.
   const [now] = useState(() => Date.now());
 
@@ -300,6 +318,7 @@ export function ProfileScreen() {
             <Text style={styles.avatarText}>{getInitials(PROFILE.name)}</Text>
           </View>
           <Text style={styles.name}>{PROFILE.name}</Text>
+          <Text style={styles.email}>{session?.user.email}</Text>
           <Text style={styles.meta}>
             {PROFILE.major} · {PROFILE.year}
           </Text>
@@ -351,6 +370,18 @@ export function ProfileScreen() {
             <Text style={styles.empty}>No connections yet.</Text>
           )}
         </Section>
+
+        <Pressable
+          style={[styles.logoutButton, loggingOut && styles.logoutDisabled]}
+          onPress={handleLogout}
+          disabled={loggingOut}
+        >
+          {loggingOut ? (
+            <ActivityIndicator color="#172033" />
+          ) : (
+            <Text style={styles.logoutText}>Log out</Text>
+          )}
+        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );
@@ -391,6 +422,27 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "800",
     color: "#172033",
+  },
+  email: {
+    fontSize: 14,
+    color: "#475569",
+    marginTop: 2,
+  },
+  logoutButton: {
+    backgroundColor: "#FFFFFF",
+    borderColor: "#DCE2EA",
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  logoutDisabled: {
+    opacity: 0.6,
+  },
+  logoutText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#DC2626",
   },
   meta: {
     fontSize: 15,
