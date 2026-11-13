@@ -1,34 +1,41 @@
 import { StyleSheet, Text, View } from "react-native";
 
 import { Avatar } from "@/shared/components/Avatar";
-import type { CheckIn } from "@/shared/data/mockCheckIns";
 import { timeAgo } from "@/shared/utils/timeAgo";
 
 const AVATAR_SIZE = 44;
 
 type FeedCheckInCardProps = {
-  checkIn: CheckIn;
-  spotName?: string;
+  userName: string;
+  spotName: string;
+  /** ISO timestamp of when they checked in. */
+  checkedInAt: string;
+  /** True while they're still checked in. */
+  isHereNow: boolean;
+  note?: string | null;
 };
 
-export function FeedCheckInCard({ checkIn, spotName }: FeedCheckInCardProps) {
-  // No end time means they haven't checked out yet.
-  const isHereNow = !checkIn.endedAt;
-
+export function FeedCheckInCard({
+  userName,
+  spotName,
+  checkedInAt,
+  isHereNow,
+  note,
+}: FeedCheckInCardProps) {
   return (
     <View style={styles.card}>
-      <Avatar name={checkIn.userName} size={AVATAR_SIZE} />
+      <Avatar name={userName} size={AVATAR_SIZE} />
       <View style={styles.body}>
         <Text style={styles.message}>
-          <Text style={styles.bold}>{checkIn.userName}</Text>
+          <Text style={styles.bold}>{userName}</Text>
           {isHereNow ? " is studying at " : " studied at "}
-          <Text style={styles.bold}>{spotName ?? checkIn.spotId}</Text>
+          <Text style={styles.bold}>{spotName}</Text>
         </Text>
 
-        {checkIn.note && <Text style={styles.note}>{checkIn.note}</Text>}
+        {note ? <Text style={styles.note}>{note}</Text> : null}
 
         <View style={styles.footer}>
-          <Text style={styles.time}>{timeAgo(new Date(checkIn.startedAt))}</Text>
+          <Text style={styles.time}>{timeAgo(new Date(checkedInAt))}</Text>
           {isHereNow && (
             <View style={styles.hereNowTag}>
               <Text style={styles.hereNowText}>here now</Text>

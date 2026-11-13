@@ -47,6 +47,7 @@ documentation grouped by resource:
 - [GET /api/buildings](docs/routes/buildings.md)
 - [GET /api/spots](docs/routes/spots.md)
 - [GET /api/spots/:id](docs/routes/spots.md#get-apispotsid)
+- [GET /api/feed](docs/routes/feed.md)
 
 ## Database changes
 
