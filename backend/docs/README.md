@@ -8,6 +8,7 @@ The local API base URL is `http://localhost:3000`. Routes are grouped by their b
 | GET | `/api/buildings` | Supabase access token | [Buildings](routes/buildings.md) |
 | GET | `/api/spots` | Supabase access token | [Spots](routes/spots.md) |
 | GET | `/api/spots/:id` | Supabase access token | [Single spot](routes/spots.md#get-apispotsid) |
+| GET | `/api/feed` | Supabase access token | [Feed](routes/feed.md) |
 
 Keep all methods for a resource in the same file (for example, future
 `GET /api/check-ins` and `POST /api/check-ins` belong in `routes/check-ins.md`),

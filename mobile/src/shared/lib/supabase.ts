@@ -11,11 +11,16 @@ if (!supabaseUrl || !supabasePublishableKey) {
   );
 }
 
+// On web, Expo also renders each page on the server ("output": "static" in
+// app.json). There is no `window` there, so AsyncStorage can't be used and
+// there's no login to keep. The browser and phones use the saved login as usual.
+const isServer = typeof window === "undefined";
+
 export const supabase = createClient(supabaseUrl, supabasePublishableKey, {
   auth: {
-    storage: AsyncStorage,
-    autoRefreshToken: true,
-    persistSession: true,
+    ...(isServer ? {} : { storage: AsyncStorage }),
+    autoRefreshToken: !isServer,
+    persistSession: !isServer,
     detectSessionInUrl: false,
   },
 });
