@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -7,16 +8,20 @@ import {
   View,
 } from "react-native";
 
+import SpotFilters from "../components/SpotFilters";
 import StudySpotCard from "../components/StudySpotCard";
+import { filterSpots, NO_FILTERS, type SpotFilterValues } from "../filterSpots";
 import { useSpots } from "../hooks/useSpots";
 
 export function StudySpotsScreen() {
   const { spots, loading, error, reload } = useSpots();
+  const [filters, setFilters] = useState<SpotFilterValues>(NO_FILTERS);
+  const visibleSpots = filterSpots(spots, filters);
 
   return (
     <View style={styles.screen}>
       <FlatList
-        data={loading || error ? [] : spots}
+        data={loading || error ? [] : visibleSpots}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <StudySpotCard spot={item} />}
         contentContainerStyle={styles.listContent}
@@ -25,9 +30,14 @@ export function StudySpotsScreen() {
             <Text style={styles.title}>Find a Study Spot</Text>
 
             {!loading && !error ? (
-              <Text style={styles.subtitle}>
-                Explore {spots.length} places to study around campus.
-              </Text>
+              <>
+                <Text style={styles.subtitle}>
+                  {visibleSpots.length === spots.length
+                    ? `Explore ${spots.length} places to study around campus.`
+                    : `Showing ${visibleSpots.length} of ${spots.length} places.`}
+                </Text>
+                <SpotFilters value={filters} onChange={setFilters} />
+              </>
             ) : null}
           </View>
         }
@@ -47,7 +57,9 @@ export function StudySpotsScreen() {
             </View>
           ) : (
             <View style={styles.messageBox}>
-              <Text style={styles.messageText}>No study spots found.</Text>
+              <Text style={styles.messageText}>
+                {spots.length === 0 ? "No study spots found." : "No spots match these filters."}
+              </Text>
             </View>
           )
         }
@@ -67,6 +79,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     marginBottom: 20,
+    gap: 16,
   },
   title: {
     fontSize: 28,
@@ -74,7 +87,6 @@ const styles = StyleSheet.create({
     color: "#172033",
   },
   subtitle: {
-    marginTop: 8,
     fontSize: 15,
     color: "#475569",
   },

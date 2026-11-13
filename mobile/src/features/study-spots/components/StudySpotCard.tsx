@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 
 import type { Spot } from "../api";
+import { getNoiseLevel } from "../noise";
 
 type StudySpotCardProps = {
   spot: Spot;
@@ -31,7 +32,9 @@ export default function StudySpotCard({ spot }: StudySpotCardProps) {
         </Text>
       ) : null}
 
-      <Text style={styles.peopleHere}>{peopleHereText(spot.activeCheckInCount)}</Text>
+      <Text style={styles.peopleHere}>
+        {getNoiseLevel(spot)} · {peopleHereText(spot.activeCheckInCount)}
+      </Text>
     </View>
   );
 }
