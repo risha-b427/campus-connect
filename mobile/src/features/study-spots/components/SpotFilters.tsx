@@ -69,6 +69,20 @@ export default function SpotFilters({ value, onChange }: SpotFiltersProps) {
           />
         ))}
       </ScrollView>
+
+      <Text style={styles.label}>Sort</Text>
+      <View style={styles.row}>
+        <Chip
+          label="A–Z"
+          selected={!value.nearYou}
+          onPress={() => onChange({ ...value, nearYou: false })}
+        />
+        <Chip
+          label="Near you"
+          selected={value.nearYou}
+          onPress={() => onChange({ ...value, nearYou: true })}
+        />
+      </View>
     </View>
   );
 }
@@ -83,6 +97,7 @@ const styles = StyleSheet.create({
     color: "#475569",
   },
   row: {
+    flexDirection: "row",
     gap: 8,
     paddingBottom: 4,
   },

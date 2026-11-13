@@ -12,18 +12,31 @@ import SpotFilters from "../components/SpotFilters";
 import StudySpotCard from "../components/StudySpotCard";
 import { filterSpots, NO_FILTERS, type SpotFilterValues } from "../filterSpots";
 import { useSpots } from "../hooks/useSpots";
+import { FAKE_USER_LOCATION } from "@/shared/data/mockStudySpots";
+import { distanceInMiles, sortByDistance } from "@/shared/utils/distance";
+
+// FAKE location (the Main Quad) until we use the phone's GPS with expo-location.
+const userLocation = FAKE_USER_LOCATION;
 
 export function StudySpotsScreen() {
   const { spots, loading, error, reload } = useSpots();
   const [filters, setFilters] = useState<SpotFilterValues>(NO_FILTERS);
-  const visibleSpots = filterSpots(spots, filters);
+  const filteredSpots = filterSpots(spots, filters);
+  const visibleSpots = filters.nearYou
+    ? sortByDistance(filteredSpots, userLocation)
+    : filteredSpots;
 
   return (
     <View style={styles.screen}>
       <FlatList
         data={loading || error ? [] : visibleSpots}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <StudySpotCard spot={item} />}
+        renderItem={({ item }) => (
+          <StudySpotCard
+            spot={item}
+            distanceMiles={filters.nearYou ? distanceInMiles(userLocation, item) : undefined}
+          />
+        )}
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={
           <View style={styles.heading}>

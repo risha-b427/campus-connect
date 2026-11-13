@@ -18,6 +18,15 @@ export function distanceInMiles(from: Coordinates, to: Coordinates): number {
   return 2 * EARTH_RADIUS_MILES * Math.asin(Math.sqrt(a));
 }
 
+// Returns a new list, closest first. Works for anything with a latitude and
+// longitude (spots, buildings, ...). The original list isn't changed.
+export function sortByDistance<T extends Coordinates>(items: T[], userLocation: Coordinates): T[] {
+  return items
+    .map((item) => ({ item, miles: distanceInMiles(userLocation, item) }))
+    .sort((a, b) => a.miles - b.miles)
+    .map(({ item }) => item);
+}
+
 export function formatMiles(miles: number): string {
   return `${miles.toFixed(1)} mi`;
 }

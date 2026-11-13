@@ -1,10 +1,13 @@
 import { StyleSheet, Text, View } from "react-native";
 
+import { formatMiles } from "@/shared/utils/distance";
 import type { Spot } from "../api";
 import { getNoiseLevel } from "../noise";
 
 type StudySpotCardProps = {
   spot: Spot;
+  // Shown as "0.3 mi away" when given.
+  distanceMiles?: number;
 };
 
 function peopleHereText(count: number): string {
@@ -13,7 +16,7 @@ function peopleHereText(count: number): string {
   return `${count} people here now`;
 }
 
-export default function StudySpotCard({ spot }: StudySpotCardProps) {
+export default function StudySpotCard({ spot, distanceMiles }: StudySpotCardProps) {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
@@ -24,7 +27,10 @@ export default function StudySpotCard({ spot }: StudySpotCardProps) {
         </View>
       </View>
 
-      <Text style={styles.building}>{spot.building}</Text>
+      <Text style={styles.building}>
+        {spot.building}
+        {distanceMiles !== undefined ? ` · ${formatMiles(distanceMiles)} away` : ""}
+      </Text>
 
       {spot.description ? (
         <Text style={styles.description} numberOfLines={2}>
