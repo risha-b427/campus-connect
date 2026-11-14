@@ -26,9 +26,9 @@ export function StudySpotsScreen() {
     <SafeAreaView style={styles.screen} edges={["top", "left", "right"]}>
       <View style={styles.content}>
         <View style={styles.heading}>
-          <Text style={styles.eyebrow}>CAMPUS CONNECT / STUDY SPOTS</Text>
-          <Text style={styles.title} accessibilityRole="header">Find a Study Spot</Text>
-          <Text style={styles.subtitle}>A little quiet. A fresh perspective. Your next place to focus.</Text>
+          <Text style={styles.eyebrow}>Campus Connect</Text>
+          <Text style={styles.title} accessibilityRole="header">Study spots</Text>
+          <Text style={styles.subtitle}>Search campus study spots by name or building.</Text>
         </View>
 
         <View style={styles.controls}>
@@ -70,7 +70,7 @@ export function StudySpotsScreen() {
 
         <View style={styles.resultsHeader}>
           <Text style={styles.resultCount} accessibilityLiveRegion="polite">
-            {spots.length} {spots.length === 1 ? "spot" : "spots"}{hasFilters ? ` of ${mockStudySpots.length}` : " to explore"}
+            {spots.length} {spots.length === 1 ? "spot" : "spots"}{hasFilters ? ` of ${mockStudySpots.length}` : ""}
           </Text>
           {hasFilters ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Reset all filters" onPress={resetFilters} style={styles.reset}>
@@ -93,13 +93,13 @@ export function StudySpotsScreen() {
           ListEmptyComponent={
             <View style={styles.empty}>
               <Text style={styles.emptyTitle} accessibilityRole="header">No spots found</Text>
-              <Text style={styles.emptyText}>Try another spot or building name, or reset your filters to see every location.</Text>
+              <Text style={styles.emptyText}>Try a different search or clear the filters.</Text>
               <Pressable accessibilityRole="button" onPress={resetFilters} style={styles.emptyButton}>
                 <Text style={styles.emptyButtonText}>Show all spots</Text>
               </Pressable>
             </View>
           }
-          ListFooterComponent={spots.length > 0 ? <Text style={styles.disclaimer}>Sample locations for now. Hours and costs are not verified.</Text> : undefined}
+          ListFooterComponent={spots.length > 0 ? <Text style={styles.disclaimer}>Sample data. Hours and prices may be inaccurate.</Text> : undefined}
         />
       </View>
     </SafeAreaView>
