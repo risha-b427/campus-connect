@@ -29,6 +29,9 @@ export function AuthButton({ label, onPress, loading = false }: AuthButtonProps)
         onPressIn={() => squish(0.96)}
         onPressOut={() => squish(1)}
         disabled={loading}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={{ disabled: loading, busy: loading }}
       >
         {loading ? (
           <ActivityIndicator color="#FF5F05" />

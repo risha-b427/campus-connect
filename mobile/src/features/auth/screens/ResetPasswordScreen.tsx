@@ -89,43 +89,45 @@ export function ResetPasswordScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <Entrance shake={error}>
-        <Text style={styles.title}>New password</Text>
-        <Text style={styles.subtitle}>Choose a new password for your account</Text>
+          <Text style={styles.title} accessibilityRole="header">New password</Text>
+          <Text style={styles.subtitle}>Choose a new password for your account</Text>
 
-        {status === "checking" && <ActivityIndicator />}
+          {status === "checking" && <ActivityIndicator />}
 
-        {status === "invalid" && (
-          <View style={styles.card}>
-            <Text style={styles.error}>{linkError}</Text>
-            <Link href="/forgot-password" style={styles.switchLink}>
-              Request a new link
-            </Link>
-          </View>
-        )}
+          {status === "invalid" && (
+            <View style={styles.card}>
+              <Text style={styles.error} accessibilityRole="alert">{linkError}</Text>
+              <Link href="/forgot-password" style={styles.switchLink}>
+                Request a new link
+              </Link>
+            </View>
+          )}
 
-        {status === "ready" && (
-          <View style={styles.card}>
-            <Text style={styles.label}>New password</Text>
-            <PasswordInput
-              value={password}
-              onChangeText={setPassword}
-              placeholder="At least 6 characters"
-              textContentType="newPassword"
-            />
+          {status === "ready" && (
+            <View style={styles.card}>
+              <Text style={styles.label}>New password</Text>
+              <PasswordInput
+                value={password}
+                accessibilityLabel="New password"
+                onChangeText={setPassword}
+                placeholder="At least 6 characters"
+                textContentType="newPassword"
+              />
 
-            <Text style={styles.label}>Confirm new password</Text>
-            <PasswordInput
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              placeholder="Type it again"
-              textContentType="newPassword"
-            />
+              <Text style={styles.label}>Confirm new password</Text>
+              <PasswordInput
+                value={confirmPassword}
+                accessibilityLabel="Confirm new password"
+                onChangeText={setConfirmPassword}
+                placeholder="Type it again"
+                textContentType="newPassword"
+              />
 
-            {error && <Text style={styles.error}>{error}</Text>}
+              {error && <Text style={styles.error} accessibilityRole="alert">{error}</Text>}
 
-            <AuthButton label="Save password" onPress={handleSave} loading={loading} />
-          </View>
-        )}
+              <AuthButton label="Save password" onPress={handleSave} loading={loading} />
+            </View>
+          )}
       </Entrance>
       </ScrollView>
     </KeyboardAvoidingView>

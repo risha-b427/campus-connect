@@ -71,51 +71,54 @@ export function SignUpScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <Entrance shake={error}>
-        <Text style={styles.title}>Create account</Text>
-        <Text style={styles.subtitle}>Join Campus Connect</Text>
+          <Text style={styles.title} accessibilityRole="header">Create account</Text>
+          <Text style={styles.subtitle}>Join Campus Connect</Text>
 
-        <View style={styles.card}>
-        <Text style={styles.label}>Email</Text>
-        <TextInput
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          placeholder="you@school.edu"
-          placeholderTextColor="#94A3B8"
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-          textContentType="emailAddress"
-        />
+          <View style={styles.card}>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            accessibilityLabel="Email"
+            onChangeText={setEmail}
+            placeholder="you@school.edu"
+            placeholderTextColor="#94A3B8"
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            textContentType="emailAddress"
+          />
 
-        <Text style={styles.label}>Password</Text>
-        <PasswordInput
-          value={password}
-          onChangeText={setPassword}
-          placeholder="At least 6 characters"
-          textContentType="newPassword"
-        />
+          <Text style={styles.label}>Password</Text>
+          <PasswordInput
+            value={password}
+            accessibilityLabel="Password"
+            onChangeText={setPassword}
+            placeholder="At least 6 characters"
+            textContentType="newPassword"
+          />
 
-        <Text style={styles.label}>Confirm password</Text>
-        <PasswordInput
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          placeholder="Type it again"
-          textContentType="newPassword"
-        />
+          <Text style={styles.label}>Confirm password</Text>
+          <PasswordInput
+            value={confirmPassword}
+            accessibilityLabel="Confirm password"
+            onChangeText={setConfirmPassword}
+            placeholder="Type it again"
+            textContentType="newPassword"
+          />
 
-        {error && <Text style={styles.error}>{error}</Text>}
-        {message && <Text style={styles.message}>{message}</Text>}
+          {error && <Text style={styles.error} accessibilityRole="alert">{error}</Text>}
+          {message && <Text style={styles.message}>{message}</Text>}
 
-        <AuthButton label="Sign up" onPress={handleSignUp} loading={loading} />
-        </View>
+          <AuthButton label="Sign up" onPress={handleSignUp} loading={loading} />
+          </View>
 
-        <View style={styles.switchRow}>
-          <Text style={styles.switchText}>Already have an account? </Text>
-          <Link href="/" style={styles.switchLink}>
-            Log in
-          </Link>
-        </View>
+          <View style={styles.switchRow}>
+            <Text style={styles.switchText}>Already have an account? </Text>
+            <Link href="/" style={styles.switchLink}>
+              Log in
+            </Link>
+          </View>
       </Entrance>
       </ScrollView>
     </KeyboardAvoidingView>

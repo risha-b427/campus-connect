@@ -18,11 +18,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // On startup, ask Supabase if a saved login exists on this phone.
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
-    });
+    let active = true;
+
+    // On startup, ask Supabase if a saved login exists on this phone. If that
+    // fails for any reason, treat the user as logged out instead of leaving
+    // the app on the loading spinner.
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (active) setSession(data.session);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setLoading(false);
+      });
 
     // Afterwards, hear about every log in, log out, and refresh.
     const { data: listener } = supabase.auth.onAuthStateChange(
@@ -31,7 +40,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
     );
 
-    return () => listener.subscription.unsubscribe();
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
   return (

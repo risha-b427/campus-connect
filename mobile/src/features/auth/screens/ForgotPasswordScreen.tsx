@@ -58,36 +58,37 @@ export function ForgotPasswordScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <Entrance shake={error}>
-        <Text style={styles.title}>Forgot password?</Text>
-        <Text style={styles.subtitle}>
-          Enter your email and we&apos;ll send you a reset link.
-        </Text>
+          <Text style={styles.title} accessibilityRole="header">Forgot password?</Text>
+          <Text style={styles.subtitle}>
+            Enter your email and we&apos;ll send you a reset link.
+          </Text>
 
-        <View style={styles.card}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            placeholder="you@school.edu"
-            placeholderTextColor="#94A3B8"
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="email-address"
-            textContentType="emailAddress"
-          />
+          <View style={styles.card}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              value={email}
+              accessibilityLabel="Email"
+              onChangeText={setEmail}
+              placeholder="you@school.edu"
+              placeholderTextColor="#94A3B8"
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              textContentType="emailAddress"
+            />
 
-          {error && <Text style={styles.error}>{error}</Text>}
-          {message && <Text style={styles.message}>{message}</Text>}
+            {error && <Text style={styles.error} accessibilityRole="alert">{error}</Text>}
+            {message && <Text style={styles.message}>{message}</Text>}
 
-          <AuthButton label="Send reset link" onPress={handleSend} loading={loading} />
-        </View>
+            <AuthButton label="Send reset link" onPress={handleSend} loading={loading} />
+          </View>
 
-        <View style={styles.switchRow}>
-          <Link href="/" style={styles.switchLink}>
-            Back to log in
-          </Link>
-        </View>
+          <View style={styles.switchRow}>
+            <Link href="/" style={styles.switchLink}>
+              Back to log in
+            </Link>
+          </View>
       </Entrance>
       </ScrollView>
     </KeyboardAvoidingView>
