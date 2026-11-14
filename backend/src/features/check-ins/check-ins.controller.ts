@@ -7,6 +7,8 @@ function isUuid(value: unknown): value is string {
   return typeof value === "string" && uuidPattern.test(value);
 }
 
+const RATING_MESSAGE = "busyness and noise must be whole numbers from 1 to 10";
+
 function isRating(value: unknown): value is number {
   return typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= 10;
 }
@@ -36,23 +38,20 @@ function sendCheckInError(res: Response, error: unknown): void {
 }
 
 async function createCheckInHandler(req: Request, res: Response) {
-  const { spotId, note } = readBody(req);
+  const { spotId, busyness, noise } = readBody(req);
 
   if (!isUuid(spotId)) {
     res.status(400).json({ message: "spotId must be a valid ID" });
     return;
   }
 
-  if (note !== undefined && note !== null && typeof note !== "string") {
-    res.status(400).json({ message: "note must be text" });
+  if (!isRating(busyness) || !isRating(noise)) {
+    res.status(400).json({ message: RATING_MESSAGE });
     return;
   }
 
-  // Treat a blank note the same as no note.
-  const trimmedNote = typeof note === "string" && note.trim() !== "" ? note.trim() : null;
-
   try {
-    const created = await checkIn(currentUserId(req), spotId, trimmedNote);
+    const created = await checkIn(currentUserId(req), spotId, busyness, noise);
     res.status(201).json(created);
   } catch (error) {
     sendCheckInError(res, error);
@@ -68,13 +67,20 @@ async function checkOutHandler(req: Request, res: Response) {
     return;
   }
 
-  if (!isRating(busyness) || !isRating(noise)) {
-    res.status(400).json({ message: "busyness and noise must be whole numbers from 1 to 10" });
+  // Scores are optional at check-out; when sent, they replace the check-in scores.
+  const isOptionalRating = (value: unknown) => value === undefined || isRating(value);
+  if (!isOptionalRating(busyness) || !isOptionalRating(noise)) {
+    res.status(400).json({ message: RATING_MESSAGE });
     return;
   }
 
   try {
-    const updated = await checkOut(currentUserId(req), id, busyness, noise);
+    const updated = await checkOut(
+      currentUserId(req),
+      id,
+      (busyness as number | undefined) ?? null,
+      (noise as number | undefined) ?? null,
+    );
     res.json(updated);
   } catch (error) {
     sendCheckInError(res, error);

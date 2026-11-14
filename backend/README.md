@@ -47,31 +47,9 @@ documentation grouped by resource:
 - [GET /api/buildings](docs/routes/buildings.md)
 - [GET /api/spots](docs/routes/spots.md)
 - [GET /api/spots/:id](docs/routes/spots.md#get-apispotsid)
-
-### Check-ins
-
-Check-in endpoints also require a token. They always act as the signed-in user; a user ID sent by the client is ignored.
-
-| Endpoint | Body | Success | Errors |
-| --- | --- | --- | --- |
-| `POST /api/check-ins` | `{ "spotId": "<spot-id>", "note": "optional" }` | `201` with the new check-in | `400` invalid input or unknown spot; `409` user already has an active check-in |
-| `PATCH /api/check-ins/:id/check-out` | `{ "busyness": 6, "noise": 3 }` (whole numbers 1–10) | `200` with the completed check-in | `400` invalid input or already checked out; `404` not found or another user's check-in |
-| `GET /api/check-ins/me` | — | `200` with the user's check-ins, newest first (`[]` if none) | — |
-
-Every endpoint returns check-ins in this shape:
-
-```json
-{
-  "id": "check-in-uuid",
-  "spot": { "id": "spot-uuid", "name": "Grainger Library First Floor" },
-  "note": "Studying for CS 225",
-  "checkedInAt": "2026-11-07T14:00:00.000Z",
-  "checkedOutAt": null,
-  "busyness": null,
-  "noise": null,
-  "isActive": true
-}
-```
+- [POST /api/check-ins](docs/routes/check-ins.md#post-apicheck-ins)
+- [PATCH /api/check-ins/:id/check-out](docs/routes/check-ins.md#patch-apicheck-insidcheck-out)
+- [GET /api/check-ins/me](docs/routes/check-ins.md#get-apicheck-insme)
 
 ## Database changes
 

@@ -2,6 +2,7 @@ import {
   checkOutCheckIn,
   findUserCheckIn,
   findUserCheckIns,
+  hasActiveCheckIn,
   insertCheckIn,
   spotExists,
   type CheckInRow,
@@ -10,11 +11,10 @@ import {
 type CheckIn = {
   id: string;
   spot: { id: string; name: string };
-  note: string | null;
   checkedInAt: string;
   checkedOutAt: string | null;
-  busyness: number | null;
-  noise: number | null;
+  busyness: number;
+  noise: number;
   isActive: boolean;
 };
 
@@ -32,7 +32,7 @@ class CheckInError extends Error {
 const UNIQUE_VIOLATION = "23505";
 const FOREIGN_KEY_VIOLATION = "23503";
 
-function hasPgCode(error: unknown, code: string): error is { code: string; constraint?: string } {
+function hasPgCode(error: unknown, code: string): boolean {
   return typeof error === "object" && error !== null && "code" in error && error.code === code;
 }
 
@@ -40,7 +40,6 @@ function toCheckIn(row: CheckInRow): CheckIn {
   return {
     id: row.id,
     spot: { id: row.spotId, name: row.spotName },
-    note: row.note,
     checkedInAt: row.checkedInAt.toISOString(),
     checkedOutAt: row.checkedOutAt ? row.checkedOutAt.toISOString() : null,
     busyness: row.busyness,
@@ -49,25 +48,35 @@ function toCheckIn(row: CheckInRow): CheckIn {
   };
 }
 
-async function checkIn(userId: string, spotId: string, note: string | null): Promise<CheckIn> {
+const ALREADY_ACTIVE = "You already have an active check-in";
+const SPOT_NOT_FOUND = "Study spot not found";
+
+async function checkIn(
+  userId: string,
+  spotId: string,
+  busyness: number,
+  noise: number,
+): Promise<CheckIn> {
   if (!(await spotExists(spotId))) {
-    throw new CheckInError(400, "Study spot not found");
+    throw new CheckInError(400, SPOT_NOT_FOUND);
+  }
+
+  // The shared database doesn't enforce one active check-in per user yet, so
+  // check here. (Two requests at the exact same moment could still both pass.)
+  if (await hasActiveCheckIn(userId)) {
+    throw new CheckInError(409, ALREADY_ACTIVE);
   }
 
   try {
-    return toCheckIn(await insertCheckIn(userId, spotId, note));
+    return toCheckIn(await insertCheckIn(userId, spotId, busyness, noise));
   } catch (error) {
-    // The database allows one active check-in per user. Relying on the index
-    // (not a check beforehand) also covers two requests arriving at once.
-    if (
-      hasPgCode(error, UNIQUE_VIOLATION) &&
-      error.constraint === "check_ins_one_active_per_user"
-    ) {
-      throw new CheckInError(409, "You already have an active check-in");
+    // If a unique index on active check-ins is added later, it lands here.
+    if (hasPgCode(error, UNIQUE_VIOLATION)) {
+      throw new CheckInError(409, ALREADY_ACTIVE);
     }
     // The spot was deleted between the existence check and the insert.
     if (hasPgCode(error, FOREIGN_KEY_VIOLATION)) {
-      throw new CheckInError(400, "Study spot not found");
+      throw new CheckInError(400, SPOT_NOT_FOUND);
     }
     throw error;
   }
@@ -76,8 +85,8 @@ async function checkIn(userId: string, spotId: string, note: string | null): Pro
 async function checkOut(
   userId: string,
   checkInId: string,
-  busyness: number,
-  noise: number,
+  busyness: number | null,
+  noise: number | null,
 ): Promise<CheckIn> {
   const updated = await checkOutCheckIn(checkInId, userId, busyness, noise);
   if (updated) {
