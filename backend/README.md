@@ -47,6 +47,9 @@ documentation grouped by resource:
 - [GET /api/buildings](docs/routes/buildings.md)
 - [GET /api/spots](docs/routes/spots.md)
 - [GET /api/spots/:id](docs/routes/spots.md#get-apispotsid)
+- [POST /api/check-ins](docs/routes/check-ins.md)
+- [PATCH /api/check-ins/:id/checkout](docs/routes/check-ins.md#patch-apicheck-insidcheckout)
+- [GET /api/check-ins/active](docs/routes/check-ins.md#get-apicheck-insactive)
 
 ## Database changes
 

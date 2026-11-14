@@ -8,13 +8,15 @@ The local API base URL is `http://localhost:3000`. Routes are grouped by their b
 | GET | `/api/buildings` | Supabase access token | [Buildings](routes/buildings.md) |
 | GET | `/api/spots` | Supabase access token | [Spots](routes/spots.md) |
 | GET | `/api/spots/:id` | Supabase access token | [Single spot](routes/spots.md#get-apispotsid) |
+| POST | `/api/check-ins` | Supabase access token | [Check in](routes/check-ins.md#post-apicheck-ins) |
+| PATCH | `/api/check-ins/:id/checkout` | Supabase access token | [Check out](routes/check-ins.md#patch-apicheck-insidcheckout) |
+| GET | `/api/check-ins/active` | Supabase access token | [Active check-ins](routes/check-ins.md#get-apicheck-insactive) |
 
 Keep all methods for a resource in the same file (for example, future
 `GET /api/check-ins` and `POST /api/check-ins` belong in `routes/check-ins.md`),
 with a section for each method and path.
 
-These are the currently implemented routes. Check-in and rating submission
-endpoints are not implemented yet.
+These are the currently implemented routes.
 
 ## Authentication
 
