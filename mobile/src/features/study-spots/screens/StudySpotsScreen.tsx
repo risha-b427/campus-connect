@@ -2,6 +2,7 @@ import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import StudySpotCard from "../components/StudySpotCard";
 import { mockStudySpots } from "@/shared/data/mockStudySpots";
+import { StudySpotsMap } from "../components/StudySpotsMap";
 
 export function StudySpotsScreen() {
   return (
@@ -22,6 +23,10 @@ export function StudySpotsScreen() {
             <Text style={styles.subtitle}>
               Explore {mockStudySpots.length} places to study around campus.
             </Text>
+
+            <View style={styles.mapBox}>
+              <StudySpotsMap />
+            </View>
           </View>
         }
       />
@@ -50,5 +55,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 15,
     color: "#475569",
+  },
+  mapBox: {
+    height: 300,
+    marginTop: 16,
+    borderRadius: 16,
+    overflow: "hidden",
   },
 });
