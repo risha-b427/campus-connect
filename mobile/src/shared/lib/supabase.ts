@@ -11,11 +11,13 @@ if (!supabaseUrl || !supabasePublishableKey) {
   );
 }
 
+const isServer = typeof window === "undefined";
+
 export const supabase = createClient(supabaseUrl, supabasePublishableKey, {
   auth: {
-    storage: AsyncStorage,
-    autoRefreshToken: true,
-    persistSession: true,
+    storage: isServer ? undefined : AsyncStorage,
+    autoRefreshToken: !isServer,
+    persistSession: !isServer,
     detectSessionInUrl: false,
   },
 });
