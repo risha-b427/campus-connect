@@ -14,6 +14,8 @@ type SpotRow = {
   averageCrowdedness: string | null;
   averageRating: string | null;
   ratingCount: string;
+  busynessActiveCount: string;
+  busynessAverage: string | null;
 };
 
 async function querySpots(id?: string): Promise<SpotRow[]> {
@@ -35,7 +37,9 @@ async function querySpots(id?: string): Promise<SpotRow[]> {
       activity.average_noise AS "averageNoise",
       activity.average_crowdedness AS "averageCrowdedness",
       ratings.average_rating AS "averageRating",
-      COALESCE(ratings.rating_count, 0) AS "ratingCount"
+      COALESCE(ratings.rating_count, 0) AS "ratingCount",
+      COALESCE(recent.active_count, 0) AS "busynessActiveCount",
+      recent.average_crowdedness AS "busynessAverage"
     FROM public.spots AS s
     INNER JOIN public.buildings AS b ON b.id = s.building_id
     LEFT JOIN (
@@ -46,6 +50,14 @@ async function querySpots(id?: string): Promise<SpotRow[]> {
       WHERE check_out_time IS NULL
       GROUP BY spot_id
     ) AS activity ON activity.spot_id = s.id
+    LEFT JOIN (
+      SELECT spot_id, COUNT(*) AS active_count,
+        ROUND(AVG(crowd_level), 1) AS average_crowdedness
+      FROM public.check_ins
+      WHERE check_out_time IS NULL
+        AND check_in_time > NOW() - INTERVAL '3 hours'
+      GROUP BY spot_id
+    ) AS recent ON recent.spot_id = s.id
     LEFT JOIN (
       SELECT spot_id, COUNT(*) AS rating_count,
         ROUND(AVG(rating), 1) AS average_rating
