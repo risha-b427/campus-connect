@@ -64,9 +64,9 @@ Authorization: Bearer <supabase-access-token>
 | `latitude` | number | Spot latitude in degrees |
 | `longitude` | number | Spot longitude in degrees |
 | `spotType` | string | One of the supported spot types |
-| `activeCheckInCount` | number | All users' check-ins with no checkout timestamp |
-| `averageNoise` | number or null | Active sessions' average noise score, on a 1–10 scale |
-| `averageCrowdedness` | number or null | Active sessions' average crowdedness score, on a 1–10 scale |
+| `activeCheckInCount` | number | Check-ins with no checkout timestamp that started within the last 3 hours |
+| `averageNoise` | number or null | Average noise score of those check-ins, on a 1–10 scale |
+| `averageCrowdedness` | number or null | Average crowdedness score of those check-ins, on a 1–10 scale |
 | `averageRating` | number or null | Average overall spot rating, on a 1–5 scale |
 | `ratingCount` | number | Number of overall spot ratings |
 | `busyness` | object | Live busyness, based on active check-ins from the last 3 hours |
@@ -78,15 +78,12 @@ All averages are calculated by the backend and rounded to one decimal. Averages
 are `null` when there are no contributors, and counts are `0`. Non-null
 aggregates and coordinates are JSON numbers.
 
-Noise and crowdedness averages include only active sessions. Checkout removes
-the session from subsequent live aggregates. These values reflect active app
-check-ins, not measured physical occupancy; sessions do not expire automatically.
+Active check-ins, and the noise and crowdedness averages, only include sessions with no checkout timestamp that started within the last 3 hours. Older sessions that were never checked out stop counting automatically, but their rows are not deleted.
 
 `busyness` only counts check-ins that have no checkout timestamp and started
 within the last 3 hours. The level is chosen from `occupancy`: under 0.3 is
 `quiet`, 0.3 or more is `moderate`, 0.6 or more is `busy`, and 0.85 or more is
-`full`. `busyness.activeCount` can be lower than `activeCheckInCount`, because
-`activeCheckInCount` also includes older sessions that were never checked out.
+`full`. 
 
 Overall ratings come from `public.ratings` independently of check-in activity.
 They remain included after their authors check out.
