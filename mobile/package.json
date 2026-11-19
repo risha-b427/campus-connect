@@ -46,7 +46,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "test": "node --no-warnings --experimental-strip-types --test \"tests/*.test.mjs\""
   },
   "private": true
 }

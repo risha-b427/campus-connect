@@ -1,16 +1,17 @@
 import { Link } from "expo-router";
 import { useState } from "react";
 import {
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   Text,
   TextInput,
   View,
 } from "react-native";
 
+import { PasswordInput } from "@/features/auth/components/PasswordInput";
+import { AuthButton } from "@/features/auth/components/AuthButton";
+import { Entrance } from "@/features/auth/components/Entrance";
 import { authStyles as styles } from "@/features/auth/authStyles";
 import { supabase } from "@/shared/lib/supabase";
 
@@ -34,9 +35,10 @@ export function LoginScreen() {
       password,
     });
 
+    setLoading(false);
+
     if (signInError) {
       setError(signInError.message);
-      setLoading(false);
     }
     // On success the app notices the new login and opens Home by itself.
   };
@@ -50,56 +52,50 @@ export function LoginScreen() {
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.title}>Welcome back</Text>
-        <Text style={styles.subtitle}>Log in to Campus Connect</Text>
+        <Entrance shake={error}>
+          <Text style={styles.title} accessibilityRole="header">Welcome back</Text>
+          <Text style={styles.subtitle}>Log in to Campus Connect</Text>
 
-        <View style={styles.card}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            placeholder="you@school.edu"
-            placeholderTextColor="#94A3B8"
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="email-address"
-            textContentType="emailAddress"
-          />
+          <View style={styles.card}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              style={styles.input}
+              value={email}
+              accessibilityLabel="Email"
+              onChangeText={setEmail}
+              placeholder="you@school.edu"
+              placeholderTextColor="#94A3B8"
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              textContentType="emailAddress"
+            />
 
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Your password"
-            placeholderTextColor="#94A3B8"
-            secureTextEntry
-            autoCapitalize="none"
-            textContentType="password"
-          />
+            <Text style={styles.label}>Password</Text>
+            <PasswordInput
+              value={password}
+              accessibilityLabel="Password"
+              onChangeText={setPassword}
+              placeholder="Your password"
+              textContentType="password"
+            />
 
-          {error && <Text style={styles.error}>{error}</Text>}
+            <Link href="/forgot-password" style={styles.forgotLink}>
+              Forgot password?
+            </Link>
 
-          <Pressable
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleLogin}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text style={styles.buttonText}>Log in</Text>
-            )}
-          </Pressable>
-        </View>
+            {error && <Text style={styles.error} accessibilityRole="alert">{error}</Text>}
 
-        <View style={styles.switchRow}>
-          <Text style={styles.switchText}>Don&apos;t have an account? </Text>
-          <Link href="/sign-up" style={styles.switchLink}>
-            Sign up
-          </Link>
-        </View>
+            <AuthButton label="Log in" onPress={handleLogin} loading={loading} />
+          </View>
+
+          <View style={styles.switchRow}>
+            <Text style={styles.switchText}>Don&apos;t have an account? </Text>
+            <Link href="/sign-up" style={styles.switchLink}>
+              Sign up
+            </Link>
+          </View>
+      </Entrance>
       </ScrollView>
     </KeyboardAvoidingView>
   );

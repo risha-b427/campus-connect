@@ -13,7 +13,10 @@ export const authStyles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "700",
-    color: "#172033",
+    color: "#13294B",
+    borderLeftWidth: 6,
+    borderLeftColor: "#FF5F05",
+    paddingLeft: 12,
   },
   subtitle: {
     fontSize: 16,
@@ -45,6 +48,14 @@ export const authStyles = StyleSheet.create({
     backgroundColor: "#F4F6FA",
     marginBottom: 16,
   },
+  forgotLink: {
+    alignSelf: "flex-end",
+    color: "#13294B",
+    fontSize: 14,
+    fontWeight: "600",
+    marginTop: -6,
+    marginBottom: 16,
+  },
   error: {
     color: "#DC2626",
     marginBottom: 16,
@@ -54,7 +65,7 @@ export const authStyles = StyleSheet.create({
     marginBottom: 16,
   },
   button: {
-    backgroundColor: "#2563EB",
+    backgroundColor: "#13294B",
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
@@ -78,7 +89,7 @@ export const authStyles = StyleSheet.create({
     fontSize: 15,
   },
   switchLink: {
-    color: "#2563EB",
+    color: "#13294B",
     fontSize: 15,
     fontWeight: "600",
   },

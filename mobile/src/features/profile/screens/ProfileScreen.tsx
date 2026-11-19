@@ -287,8 +287,10 @@ export function ProfileScreen() {
 
   const handleLogout = async () => {
     setLoggingOut(true);
-    await supabase.auth.signOut();
-    // The app notices the log out and sends you back to the login screen.
+    const { error } = await supabase.auth.signOut();
+    // On success the app notices the log out and sends you back to the login
+    // screen. If it failed, let the user try again.
+    if (error) setLoggingOut(false);
   };
 
   // Read the clock once so "Here now" times stay steady between re-renders.
