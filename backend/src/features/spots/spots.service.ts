@@ -25,10 +25,35 @@ type Spot = {
   averageCrowdedness: number | null;
   averageRating: number | null;
   ratingCount: number;
+  busyness: Busyness;
 };
 
 function isSpotType(value: string): value is SpotType {
   return spotTypes.includes(value as SpotType);
+}
+
+type BusynessLevel = "quiet" | "moderate" | "busy" | "full";
+
+type Busyness = {
+  level: BusynessLevel | null;
+  occupancy: number | null;
+  activeCount: number;
+};
+
+function toBusynessLevel(occupancy: number): BusynessLevel {
+  if (occupancy >= 0.85) return "full";
+  if (occupancy >= 0.6) return "busy";
+  if (occupancy >= 0.3) return "moderate";
+  return "quiet";
+}
+
+function toBusyness(count: number, average: number | null): Busyness {
+  if (count === 0 || average === null) {
+    return { level: null, occupancy: null, activeCount: 0 };
+  }
+  // The average has one decimal, so this gives exactly two (6.5 -> 0.65)
+  const occupancy = Math.round(average * 10) / 100;
+  return { level: toBusynessLevel(occupancy), occupancy, activeCount: count };
 }
 
 function toSpot(spot: SpotRow): Spot {
@@ -36,8 +61,10 @@ function toSpot(spot: SpotRow): Spot {
     throw new Error(`Unexpected spot type returned by database: ${spot.spotType}`);
   }
 
+  const { busynessActiveCount, busynessAverage, ...rest } = spot;
+
   return {
-    ...spot,
+    ...rest,
     spotType: spot.spotType,
     latitude: Number(spot.latitude),
     longitude: Number(spot.longitude),
@@ -47,6 +74,10 @@ function toSpot(spot: SpotRow): Spot {
       spot.averageCrowdedness === null ? null : Number(spot.averageCrowdedness),
     averageRating: spot.averageRating === null ? null : Number(spot.averageRating),
     ratingCount: Number(spot.ratingCount),
+    busyness: toBusyness(
+      Number(busynessActiveCount ?? 0),
+      busynessAverage == null ? null : Number(busynessAverage),
+    ),
   };
 }
 

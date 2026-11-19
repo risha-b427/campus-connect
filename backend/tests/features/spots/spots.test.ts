@@ -22,8 +22,14 @@ const spots = [
     averageCrowdedness: "6.7",
     averageRating: "3.5",
     ratingCount: "2",
+    busynessActiveCount: "3",
+    busynessAverage: "6.5",
   },
 ];
+
+// The API hides the raw helper columns and returns a busyness object instead
+const { busynessActiveCount, busynessAverage, ...publicSpot } = spots[0];
+const busyness = { level: "busy", occupancy: 0.65, activeCount: 3 };
 
 beforeAll(() => {
   mockAuthenticatedUser();
@@ -45,7 +51,7 @@ test("GET /api/spots returns spot-shaped objects", async () => {
   expect(response.status).toBe(200);
   expect(response.body).toEqual([
     {
-      ...spots[0],
+      ...publicSpot,
       latitude: 40.112688,
       longitude: -88.226885,
       activeCheckInCount: 3,
@@ -53,6 +59,7 @@ test("GET /api/spots returns spot-shaped objects", async () => {
       averageCrowdedness: 6.7,
       averageRating: 3.5,
       ratingCount: 2,
+      busyness,
     },
   ]);
 });
@@ -106,9 +113,9 @@ test("GET /api/spots/:id returns a spot with numeric values and a parameterized 
   expect(response.status).toBe(200);
   expect(response.headers["cache-control"]).toBe("no-store");
   expect(response.body).toEqual({
-    ...spots[0], latitude: 40.112688, longitude: -88.226885,
+    ...publicSpot, latitude: 40.112688, longitude: -88.226885,
     activeCheckInCount: 3, averageNoise: 4.3, averageCrowdedness: 6.7,
-    averageRating: 3.5, ratingCount: 2,
+    averageRating: 3.5, ratingCount: 2, busyness,
   });
   expect(db.query).toHaveBeenCalledTimes(1);
   expect(db.query).toHaveBeenCalledWith(expect.stringContaining("WHERE s.id = $1"), [spots[0].id]);
@@ -166,4 +173,93 @@ test("GET /api/spots/:id reads current values on every request and ignores query
   expect(refreshed.body.activeCheckInCount).toBe(4);
   expect(db.query).toHaveBeenCalledTimes(2);
   expect(db.query).toHaveBeenLastCalledWith(expect.stringContaining("WHERE s.id = $1"), [spots[0].id]);
+});
+
+// ---------- busyness ----------
+
+// Builds a mock row with a given number of recent check-ins and average
+function rowWith(count: string, average: string | null) {
+  return { ...spots[0], busynessActiveCount: count, busynessAverage: average };
+}
+
+test.each([
+  ["1.0", 0.1, "quiet"],
+  ["2.9", 0.29, "quiet"],
+  ["3.0", 0.3, "moderate"],
+  ["5.9", 0.59, "moderate"],
+  ["6.0", 0.6, "busy"],
+  ["8.4", 0.84, "busy"],
+  ["8.5", 0.85, "full"],
+  ["10.0", 1, "full"],
+])(
+  "GET /api/spots maps an average crowd score of %s to occupancy %p and level %s",
+  async (average, occupancy, level) => {
+    jest.spyOn(db, "query").mockResolvedValue({ rows: [rowWith("4", average)] } as never);
+
+    const response = await request(app).get("/api/spots")
+      .set("Authorization", `Bearer ${accessToken}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body[0].busyness).toEqual({ level, occupancy, activeCount: 4 });
+  },
+);
+
+test("GET /api/spots returns null busyness when there are no recent check-ins", async () => {
+  jest.spyOn(db, "query").mockResolvedValue({ rows: [rowWith("0", null)] } as never);
+
+  const response = await request(app).get("/api/spots")
+    .set("Authorization", `Bearer ${accessToken}`);
+
+  expect(response.body[0].busyness).toEqual({
+    level: null,
+    occupancy: null,
+    activeCount: 0,
+  });
+});
+
+test("GET /api/spots/:id includes busyness", async () => {
+  const response = await request(app).get(`/api/spots/${spots[0].id}`)
+    .set("Authorization", `Bearer ${accessToken}`);
+
+  expect(response.status).toBe(200);
+  expect(response.body.busyness).toEqual(busyness);
+});
+
+test("GET /api/spots/:id returns null busyness when there are no recent check-ins", async () => {
+  jest.spyOn(db, "query").mockResolvedValue({ rows: [rowWith("0", null)] } as never);
+
+  const response = await request(app).get(`/api/spots/${spots[0].id}`)
+    .set("Authorization", `Bearer ${accessToken}`);
+
+  expect(response.body.busyness).toEqual({ level: null, occupancy: null, activeCount: 0 });
+});
+
+test("GET /api/spots does not expose the raw busyness helper columns", async () => {
+  const response = await request(app).get("/api/spots")
+    .set("Authorization", `Bearer ${accessToken}`);
+
+  expect(response.body[0]).not.toHaveProperty("busynessActiveCount");
+  expect(response.body[0]).not.toHaveProperty("busynessAverage");
+});
+
+test("GET /api/spots keeps every existing field alongside busyness", async () => {
+  const response = await request(app).get("/api/spots")
+    .set("Authorization", `Bearer ${accessToken}`);
+
+  expect(Object.keys(response.body[0]).sort()).toEqual(
+    [
+      "id", "name", "description", "buildingId", "building", "latitude",
+      "longitude", "spotType", "activeCheckInCount", "averageNoise",
+      "averageCrowdedness", "averageRating", "ratingCount", "busyness",
+    ].sort(),
+  );
+});
+
+test("the busyness query only counts active check-ins from the last 3 hours", async () => {
+  await request(app).get("/api/spots")
+    .set("Authorization", `Bearer ${accessToken}`);
+
+  const sql = String((db.query as jest.Mock).mock.calls[0][0]);
+  expect(sql).toContain("check_out_time IS NULL");
+  expect(sql).toContain("check_in_time > NOW() - INTERVAL '3 hours'");
 });
