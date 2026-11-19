@@ -1,17 +1,15 @@
 import { useState } from "react";
 import {
-  View,
-  Text,
-  TextInput,
+  ActivityIndicator,
   Pressable,
   ScrollView,
   StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 
 import { useCheckIns } from "@/features/check/context/CheckInContext";
-import { CURRENT_USER } from "@/shared/data/currentUser";
-import { mockStudySpots } from "@/shared/data/mockStudySpots";
-import { peopleHere } from "@/shared/lib/busyness";
 
 function peopleLabel(count: number) {
   if (count === 0) return "No one here yet";
@@ -19,36 +17,15 @@ function peopleLabel(count: number) {
   return `${count} people here now`;
 }
 
-// One tappable box, used in both lists
-function SpotBox({
-  title,
-  subtitle,
-  selected,
-  onPress,
-}: {
-  title: string;
-  subtitle: string;
-  selected: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      style={[styles.spot, selected && styles.spotSelected]}
-      onPress={onPress}
-    >
-      <Text style={styles.spotTitle}>{title}</Text>
-      <Text style={styles.count}>{subtitle}</Text>
-    </Pressable>
-  );
-}
-
-// A row of 1-5 buttons for one rating
-function RatingRow({
+// A row of tappable numbers from 1 to max
+function NumberRow({
   label,
+  max,
   value,
   onChange,
 }: {
   label: string;
+  max: number;
   value: number | null;
   onChange: (n: number) => void;
 }) {
@@ -56,7 +33,7 @@ function RatingRow({
     <View style={styles.ratingRow}>
       <Text style={styles.ratingLabel}>{label}</Text>
       <View style={styles.ratingButtons}>
-        {[1, 2, 3, 4, 5].map((n) => (
+        {Array.from({ length: max }, (_, i) => i + 1).map((n) => (
           <Pressable
             key={n}
             style={[styles.ratingButton, value === n && styles.ratingSelected]}
@@ -73,152 +50,170 @@ function RatingRow({
 }
 
 export default function CheckInScreen() {
-  const { checkIns, checkIn, checkOut } = useCheckIns();
+  const { spots, checkIns, myCheckIn, loading, error, refresh, checkIn, checkOut } =
+    useCheckIns();
+
+  // Check-in form
   const [selectedSpotId, setSelectedSpotId] = useState<string | null>(null);
   const [note, setNote] = useState("");
-  const [isRating, setIsRating] = useState(false);
   const [busyness, setBusyness] = useState<number | null>(null);
   const [noise, setNoise] = useState<number | null>(null);
 
-  const myCheckIn = checkIns.find(
-    (c) => c.userId === CURRENT_USER.id && !c.endedAt,
+  // Checkout form
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [outBusyness, setOutBusyness] = useState<number | null>(null);
+  const [outNoise, setOutNoise] = useState<number | null>(null);
+  const [overall, setOverall] = useState<number | null>(null);
+
+  const [saving, setSaving] = useState(false);
+
+  const countFor = (spotId: string) =>
+    checkIns.filter((c) => c.spotId === spotId).length;
+
+  const spotName = (spotId: string) =>
+    spots.find((s) => s.id === spotId)?.name ?? "this spot";
+
+  // Popular right now: most people first, then by name
+  const popularSpots = [...spots].sort(
+    (a, b) => countFor(b.id) - countFor(a.id) || a.name.localeCompare(b.name),
   );
-  const checkedInSpot = mockStudySpots.find((s) => s.id === myCheckIn?.spotId);
 
-  // Popular right now: top 4 spots by people here, highest first
-  const popularSpots = [...mockStudySpots]
-    .sort(
-      (a, b) => peopleHere(b.id, checkIns) - peopleHere(a.id, checkIns),
-    )
-    .slice(0, 4);
-
-  // Last rated: most recent rated check-out per spot, newest first, top 3
-  const seen = new Set<string>();
-  const lastRated = checkIns
-    .filter((c) => c.rating && c.endedAt)
-    .sort(
-      (a, b) =>
-        new Date(b.endedAt!).getTime() - new Date(a.endedAt!).getTime(),
-    )
-    .filter((c) => {
-      if (seen.has(c.spotId)) return false;
-      seen.add(c.spotId);
-      return true;
-    })
-    .slice(0, 3);
-
-  function spotName(spotId: string) {
-    return mockStudySpots.find((s) => s.id === spotId)?.name ?? spotId;
-  }
-
-  function handleCheckIn() {
-    if (selectedSpotId) {
-      checkIn(selectedSpotId, note);
+  async function handleCheckIn() {
+    if (!selectedSpotId || !busyness || !noise) return;
+    setSaving(true);
+    const ok = await checkIn(selectedSpotId, note, busyness, noise);
+    setSaving(false);
+    if (ok) {
+      setSelectedSpotId(null);
+      setNote("");
+      setBusyness(null);
+      setNoise(null);
     }
   }
 
-  function handleSubmitRating() {
-  if (myCheckIn && busyness && noise) {
-    checkOut(myCheckIn.id, { busyness, noise });
+  function startCheckOut() {
+    // Start from the scores given at check-in
+    setOutBusyness(myCheckIn?.busyness ?? null);
+    setOutNoise(myCheckIn?.noise ?? null);
+    setOverall(null);
+    setIsCheckingOut(true);
   }
-  setIsRating(false);
-  setBusyness(null);
-  setNoise(null);
-  setSelectedSpotId(null);
-  setNote("");
-}
+
+  async function handleSubmitCheckOut() {
+    if (!outBusyness || !outNoise) return;
+    setSaving(true);
+    const ok = await checkOut(outBusyness, outNoise, overall ?? undefined);
+    setSaving(false);
+    if (ok) setIsCheckingOut(false);
+  }
+
+  const errorBox = error ? (
+    <View style={styles.errorBox}>
+      <Text style={styles.errorText}>{error}</Text>
+      <Pressable onPress={refresh}>
+        <Text style={styles.retry}>Try again</Text>
+      </Pressable>
+    </View>
+  ) : null;
+
+  // First load
+  if (loading && spots.length === 0) {
+    return (
+      <View style={[styles.container, styles.center]}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
 
   // View shown after checking in
   if (myCheckIn) {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>
-        You're checked in at {checkedInSpot?.name ?? myCheckIn.spotId}!
-      </Text>
-      <Text style={styles.note}>
-        {peopleLabel(peopleHere(myCheckIn.spotId, checkIns))}
-      </Text>
-      {myCheckIn.note ? (
-        <Text style={styles.note}>Working on: {myCheckIn.note}</Text>
-      ) : null}
+    const canSubmit = !!outBusyness && !!outNoise && !saving;
+    return (
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>
+          You're checked in at {spotName(myCheckIn.spotId)}!
+        </Text>
+        <Text style={styles.note}>
+          {peopleLabel(countFor(myCheckIn.spotId))}
+        </Text>
+        {myCheckIn.note ? (
+          <Text style={styles.note}>Working on: {myCheckIn.note}</Text>
+        ) : null}
+        {errorBox}
 
-      {isRating ? (
-        <>
-          <Text style={styles.columnTitle}>How was it? (1 = low, 5 = high)</Text>
-          <RatingRow label="Busyness" value={busyness} onChange={setBusyness} />
-          <RatingRow label="Noise" value={noise} onChange={setNoise} />
-          <Pressable
-            style={[styles.button, !(busyness && noise) && styles.buttonDisabled]}
-            onPress={handleSubmitRating}
-            disabled={!(busyness && noise)}
-          >
-            <Text style={styles.buttonText}>Submit and check out</Text>
+        {isCheckingOut ? (
+          <>
+            <Text style={styles.columnTitle}>How is it now? (1 = low, 10 = high)</Text>
+            <NumberRow label="Busyness" max={10} value={outBusyness} onChange={setOutBusyness} />
+            <NumberRow label="Noise" max={10} value={outNoise} onChange={setOutNoise} />
+            <NumberRow
+              label="Overall rating of this spot (optional, 1-5)"
+              max={5}
+              value={overall}
+              onChange={setOverall}
+            />
+            <Pressable
+              style={[styles.button, !canSubmit && styles.buttonDisabled]}
+              onPress={handleSubmitCheckOut}
+              disabled={!canSubmit}
+            >
+              <Text style={styles.buttonText}>
+                {saving ? "Saving..." : "Submit and check out"}
+              </Text>
+            </Pressable>
+          </>
+        ) : (
+          <Pressable style={styles.button} onPress={startCheckOut}>
+            <Text style={styles.buttonText}>Check out</Text>
           </Pressable>
-        </>
-      ) : (
-        <Pressable style={styles.button} onPress={() => setIsRating(true)}>
-          <Text style={styles.buttonText}>Check out</Text>
-        </Pressable>
-      )}
-    </View>
-  );
-}
+        )}
+      </ScrollView>
+    );
+  }
 
   // View shown before checking in
+  const canCheckIn = !!selectedSpotId && !!busyness && !!noise && !saving;
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>
         Check into a study spot and leave your ratings!
       </Text>
+      {errorBox}
 
-      <View style={styles.columns}>
-        <View style={styles.column}>
-          <Text style={styles.columnTitle}>Popular right now</Text>
-          {popularSpots.map((spot) => (
-            <SpotBox
-              key={spot.id}
-              title={spot.name}
-              subtitle={peopleLabel(peopleHere(spot.id, checkIns))}
-              selected={selectedSpotId === spot.id}
-              onPress={() => setSelectedSpotId(spot.id)}
-            />
-          ))}
-        </View>
+      <Text style={styles.columnTitle}>Popular right now</Text>
+      {popularSpots.map((spot) => (
+        <Pressable
+          key={spot.id}
+          style={[styles.spot, selectedSpotId === spot.id && styles.spotSelected]}
+          onPress={() => setSelectedSpotId(spot.id)}
+        >
+          <Text style={styles.spotTitle}>{spot.name}</Text>
+          <Text style={styles.count}>{peopleLabel(countFor(spot.id))}</Text>
+        </Pressable>
+      ))}
 
-        <View style={styles.column}>
-          <Text style={styles.columnTitle}>Last rated</Text>
-          {lastRated.length === 0 ? (
-            <Text style={styles.count}>No ratings yet</Text>
-          ) : (
-            lastRated.map((c) => (
-              <SpotBox
-                key={c.id}
-                title={spotName(c.spotId)}
-                subtitle={`Busyness ${c.rating!.busyness}/5 · Noise ${c.rating!.noise}/5`}
-                selected={selectedSpotId === c.spotId}
-                onPress={() => setSelectedSpotId(c.spotId)}
-              />
-            ))
-          )}
-        </View>
-      </View>
+      <NumberRow label="How busy is it? (1-10)" max={10} value={busyness} onChange={setBusyness} />
+      <NumberRow label="How noisy is it? (1-10)" max={10} value={noise} onChange={setNoise} />
 
       <TextInput
         style={styles.input}
         placeholder="What are you working on? (optional)"
         value={note}
         onChangeText={setNote}
+        maxLength={200}
       />
 
       <Pressable
-        style={[styles.button, !selectedSpotId && styles.buttonDisabled]}
+        style={[styles.button, !canCheckIn && styles.buttonDisabled]}
         onPress={handleCheckIn}
-        disabled={!selectedSpotId}
+        disabled={!canCheckIn}
       >
         <Text style={styles.buttonText}>
-          {selectedSpotId
-            ? `Check in at ${spotName(selectedSpotId)}`
-            : "Check in"}
+          {saving
+            ? "Checking in..."
+            : selectedSpotId
+              ? `Check in at ${spotName(selectedSpotId)}`
+              : "Check in"}
         </Text>
       </Pressable>
     </ScrollView>
@@ -227,10 +222,9 @@ export default function CheckInScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: 20, paddingTop: 48 },
+  center: { flex: 1, alignItems: "center", justifyContent: "center" },
   title: { fontSize: 20, fontWeight: "bold", marginBottom: 16 },
   note: { fontSize: 16, marginBottom: 16 },
-  columns: { flexDirection: "row", gap: 12 },
-  column: { flex: 1 },
   columnTitle: { fontSize: 15, fontWeight: "600", marginBottom: 8 },
   spot: {
     padding: 10,
@@ -257,12 +251,12 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: { backgroundColor: "#9ca3af" },
   buttonText: { color: "white", fontWeight: "bold" },
-  ratingRow: { marginBottom: 16 },
+  ratingRow: { marginTop: 8, marginBottom: 8 },
   ratingLabel: { fontSize: 15, fontWeight: "500", marginBottom: 6 },
-  ratingButtons: { flexDirection: "row", gap: 8 },
+  ratingButtons: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
   ratingButton: {
-    width: 44,
-    height: 44,
+    width: 36,
+    height: 36,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
@@ -271,4 +265,12 @@ const styles = StyleSheet.create({
   },
   ratingSelected: { backgroundColor: "#3b82f6", borderColor: "#3b82f6" },
   ratingTextSelected: { color: "white", fontWeight: "bold" },
+  errorBox: {
+    backgroundColor: "#fee2e2",
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 12,
+  },
+  errorText: { color: "#991b1b" },
+  retry: { color: "#991b1b", fontWeight: "bold", marginTop: 6 },
 });
