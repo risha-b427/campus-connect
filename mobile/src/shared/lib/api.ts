@@ -18,6 +18,11 @@ export type ApiSpot = {
   averageCrowdedness: number | null;
   averageRating: number | null;
   ratingCount: number;
+  busyness: {
+    level: import("@/shared/utils/busyness").BusynessLevel | null;
+    occupancy: number | null;
+    activeCount: number;
+  };
 };
 
 // Shape of the check-in endpoints (see backend/docs/routes/check-ins.md)
