@@ -1,30 +1,13 @@
-// mobile/src/features/study-spots/components/StudySpotsMap.tsx
 import MapView, { Marker } from "react-native-maps";
 import { StyleSheet } from "react-native";
-import { mockStudySpots, FAKE_USER_LOCATION } from "@/shared/data/mockStudySpots";
+import type { ApiSpot } from "@/shared/lib/api";
+import { hasCoordinates, spotStatus } from "../utils/spotPresentation";
 
-export function StudySpotsMap() {
-  return (
-    <MapView
-      style={styles.map}
-      initialRegion={{
-        ...FAKE_USER_LOCATION,
-        latitudeDelta: 0.02,
-        longitudeDelta: 0.02,
-      }}
-    >
-      {mockStudySpots.map((spot) => (
-        <Marker
-          key={spot.id}
-          coordinate={spot.location}
-          title={spot.name}
-          description={spot.area}
-        />
-      ))}
-    </MapView>
-  );
+export function StudySpotsMap({ spots, onSelect }: { spots: ApiSpot[]; onSelect: (spot: ApiSpot) => void }) {
+  const valid = spots.filter(hasCoordinates);
+  const center = valid[0] ?? { latitude: 40.1075, longitude: -88.2272 };
+  return <MapView style={styles.map} initialRegion={{ latitude: center.latitude, longitude: center.longitude, latitudeDelta: 0.02, longitudeDelta: 0.02 }}>
+    {valid.map(spot => <Marker key={spot.id} coordinate={{ latitude: spot.latitude, longitude: spot.longitude }} pinColor={spotStatus(spot).color} title={spot.name} description={`${spotStatus(spot).label} · ${spot.activeCheckInCount} checked in`} onPress={() => onSelect(spot)} />)}
+  </MapView>;
 }
-
-const styles = StyleSheet.create({
-  map: { flex: 1 },
-});
+const styles = StyleSheet.create({ map: { flex: 1 } });
